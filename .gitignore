@@ -2,20 +2,15 @@
 token.json
 .env
 
-### MacOS Files
+### System Files
 .DS_Store
-
-### Logs
-logs
 
 ### Python
 venv
-
-### Data
-data
-
-### Data Sync
-sync_to_other_cluster.sh
+*checkpoint.ipynb
 
 ### Misc
 getting_started_command.sh
+data
+sync_to_other_cluster.sh
+logs
