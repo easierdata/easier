@@ -11,6 +11,11 @@ venv
 
 ### Misc
 getting_started_command.sh
-data
 sync_to_other_cluster.sh
 logs
+
+### Data
+data/**/*.TIF
+data/**/*.tar
+data/**/*.txt
+data/**/*.xml
