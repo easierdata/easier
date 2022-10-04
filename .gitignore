@@ -1,1 +1,21 @@
+### Secrets
 token.json
+.env
+
+### MacOS Files
+.DS_Store
+
+### Logs
+logs
+
+### Python
+venv
+
+### Data
+data
+
+### Data Sync
+sync_to_other_cluster.sh
+
+### Misc
+getting_started_command.sh
