@@ -54,17 +54,9 @@ $ flake8 code
   `https://github.com/easierdata/easier/compare`</a>.
 
 ---
-## Team
-
-|                                               John Solly                                               |
-| :----------------------------------------------------------------------------------------------------: |
-|   [![jsolly](https://avatars1.githubusercontent.com/u/9572232?v=3&s=200)](https://github.com/jsolly)   |
-| <a href="https://github.com/jsolly" rel="noopener noreferrer" target="_blank"> `github.com/jsolly`</a> |
-
----
 
 ## FAQ
-
+-- TODO
 ## License
 
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
