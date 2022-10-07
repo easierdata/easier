@@ -3,16 +3,25 @@ import os
 import subprocess
 import pandas as pd
 import json
-year="2013"
-TMPDIR=""
-target_dir = Path(f"") # path to input fils
-car_dir = Path(f"") # path to output CARs
-pow_path = "" # path to POW executable (obtain from Textile POW Github)
+import datetime
+from dotenv import load_dotenv
+import os
+load_dotenv()
+token = os.getenv('TOKEN')
+TMPDIR = os.getenv('TMPDIR')
+DATAROOT = os.getenv('DATAROOT')
+pow_path = os.getenv('POW')
+year="2011"
+dataset = "MOD09Q1G_NDVI"
+target_dir = Path(f"{DATAROOT}/{dataset}/{year}") # path to input fils
+car_dir = Path(f"{DATAROOT}/{dataset}-CAR/{year}") # path to output CARs
 
 car_dir.mkdir(parents=True, exist_ok=True) # create car dir automatically
 targets = [x for x in target_dir.glob("*") if x.is_dir()]
-import datetime
+
+
 print(datetime.datetime.now())
+
 df = pd.DataFrame(columns = ['name', 'payload_cid', 'piece_size', 'piece_cid', "file"])
 for target in targets:
 
