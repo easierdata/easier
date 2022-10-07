@@ -19,3 +19,5 @@ data/**/*.TIF
 data/**/*.tar
 data/**/*.txt
 data/**/*.xml
+data/**/*.json
+data/**/*.jpeg
