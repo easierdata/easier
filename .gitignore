@@ -21,3 +21,5 @@ data/**/*.txt
 data/**/*.xml
 data/**/*.json
 data/**/*.jpeg
+data/**/*.cog
+data/**/*.IMD
