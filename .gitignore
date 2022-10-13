@@ -25,3 +25,4 @@ data/**/*.cog
 data/**/*.IMD
 data/**/*.car
 data/**/*.manifest
+data/**/*.csv
