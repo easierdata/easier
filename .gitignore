@@ -23,3 +23,5 @@ data/**/*.json
 data/**/*.jpeg
 data/**/*.cog
 data/**/*.IMD
+data/**/*.car
+data/**/*.manifest
