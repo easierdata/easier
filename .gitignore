@@ -23,3 +23,10 @@ data/**/*.json
 data/**/*.jpeg
 data/**/*.cog
 data/**/*.IMD
+data/**/*.car
+data/**/*.manifest
+data/**/*.csv
+
+### Singularity
+database
+instance.txt

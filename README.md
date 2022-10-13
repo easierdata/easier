@@ -17,8 +17,9 @@ $ source venv/bin/activate
 $ pip install --upgrade pip
 $ python3 -m pip install -r requirements/requirements.txt -c requirements/constraints.txt
 ```
-### Setup
--- TODO
+### Car File Generation
+https://github.com/tech-greedy/singularity/blob/main/getting-started.md
+
 ## Features
 -- TODO
 ## Coverage
