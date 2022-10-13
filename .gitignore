@@ -26,3 +26,7 @@ data/**/*.IMD
 data/**/*.car
 data/**/*.manifest
 data/**/*.csv
+
+### Singularity
+database
+instance.txt
