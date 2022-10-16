@@ -5,6 +5,6 @@ wheel
 geopandas
 pystac-client
 planetary-computer
-"rich[jupyter]"
+rich
 rasterio
 browser-cookie3
