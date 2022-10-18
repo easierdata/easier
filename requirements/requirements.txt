@@ -2,3 +2,5 @@ pandas
 requests
 python-dotenv
 wheel
+scipy
+numpy
