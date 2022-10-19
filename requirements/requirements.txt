@@ -9,5 +9,4 @@ pystac-client
 planetary-computer
 rich[jupyter]
 browser-cookie3
-black
 flake8
