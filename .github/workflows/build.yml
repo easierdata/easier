@@ -25,8 +25,8 @@ jobs:
         
     - name: Lint with flake8
       run: |
-        flake8 code
+        python3 -m flake8 code
     
     - name: Format with Black
       run: |
-        black code
+        python3 -m black code
