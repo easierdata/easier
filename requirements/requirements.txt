@@ -2,9 +2,10 @@ pandas
 requests
 python-dotenv
 wheel
+scipy
+numpy
 geopandas
 pystac-client
 planetary-computer
-rich
-rasterio
+rich[jupyter]
 browser-cookie3
