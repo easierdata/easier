@@ -10,3 +10,5 @@ planetary-computer
 rich[jupyter]
 browser-cookie3
 flake8
+black
+pre-commit
