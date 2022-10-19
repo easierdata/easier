@@ -4,9 +4,9 @@ on:
   push:
   pull_request:
     branches:
-      - master
+      - main
   schedule:
-    - cron: "0 3 * * 0-6"
+    - cron: "0 3 * * 0-6" # 3AM every day
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,33 +25,5 @@ jobs:
         
     - name: Lint with flake8
       run: |
-        flake8 code
-    
-    - name: Format with Black
-      run: |
-        flake8 code
-
-  static_analysis:
-      runs-on: ubuntu-latest
-      permissions:
-        actions: read
-        contents: read
-        security-events: write
-
-      strategy:
-        fail-fast: false
-        matrix:
-          language: ["python"]
-          # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
-          # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
-
-      steps:
-        - uses: actions/checkout@v2
-
-        - name: Initialize CodeQL
-          uses: github/codeql-action/init@v2
-          with:
-            languages: ${{ matrix.language }}
-
-        - name: Perform CodeQL Analysis
-          uses: github/codeql-action/analyze@v2
+        source venv/bin/activate
+        python3 -m flake8 code

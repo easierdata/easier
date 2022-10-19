@@ -1,0 +1,10 @@
+repos:
+-   repo: https://github.com/ambv/black
+    rev: 22.10.0
+    hooks:
+    - id: black
+
+-   repo: https://github.com/pycqa/flake8
+    rev: ''  # pick a git hash / tag to point to
+    hooks:
+    -   id: flake8
