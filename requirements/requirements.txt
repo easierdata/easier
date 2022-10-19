@@ -2,3 +2,9 @@ pandas
 requests
 python-dotenv
 wheel
+geopandas
+pystac-client
+planetary-computer
+rich
+rasterio
+browser-cookie3
