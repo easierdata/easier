@@ -16,6 +16,7 @@ $ python3 -m venv venv
 $ source venv/bin/activate
 $ pip install --upgrade pip
 $ python3 -m pip install -r requirements/requirements.txt -c requirements/constraints.txt
+$ pre-commit install
 ```
 - Mac OS with M1 chip may encounter problems
 A general solution is to use `brew install` for the missing executable.
