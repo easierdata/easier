@@ -17,6 +17,10 @@ $ source venv/bin/activate
 $ pip install --upgrade pip
 $ python3 -m pip install -r requirements/requirements.txt -c requirements/constraints.txt
 ```
+- Mac OS with M1 chip may encounter problems
+A general solution is to use `brew install` for the missing executable.
+See description and solution at https://github.com/pyproj4/pyproj/issues/1027
+
 ### Car File Generation
 https://github.com/tech-greedy/singularity/blob/main/getting-started.md
 
