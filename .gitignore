@@ -15,17 +15,7 @@ sync_to_other_cluster.sh
 logs
 
 ### Data
-data/**/*.TIF
-data/**/*.tar
-data/**/*.txt
-data/**/*.xml
-data/**/*.json
-data/**/*.jpeg
-data/**/*.cog
-data/**/*.IMD
-data/**/*.car
-data/**/*.manifest
-data/**/*.csv
+data/*
 
 ### Singularity
 database
