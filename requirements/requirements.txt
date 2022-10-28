@@ -3,6 +3,7 @@ browser-cookie3
 fiona
 flake8
 geopandas
+matplotlib
 numpy
 pandas
 planetary-computer
