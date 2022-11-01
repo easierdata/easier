@@ -2,6 +2,7 @@ black
 browser-cookie3
 fiona
 flake8
+folium
 geopandas
 matplotlib
 numpy
