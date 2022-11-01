@@ -4,6 +4,7 @@ fiona
 flake8
 folium
 geopandas
+GDAL
 matplotlib
 numpy
 pandas
