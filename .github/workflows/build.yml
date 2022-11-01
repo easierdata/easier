@@ -18,7 +18,7 @@ jobs:
         python-version: 3.8.10
     - name: Create Virtual Environment and install dependencies
       run: |
-        sudo apt-get install binutils libproj-dev gdal-bin
+        sudo apt-get install libgdal-dev
         python3 -m venv venv
         source venv/bin/activate
         pip install --upgrade pip
