@@ -18,4 +18,3 @@ rtree
 scipy
 shapely
 wheel
-GDAL

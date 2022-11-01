@@ -18,13 +18,17 @@ jobs:
         python-version: 3.8.10
     - name: Create Virtual Environment and install dependencies
       run: |
-        sudo apt-get install libgdal-dev
-        export CPLUS_INCLUDE_PATH=/usr/include/gdal
-        export C_INCLUDE_PATH=/usr/include/gdal
         python3 -m venv venv
         source venv/bin/activate
         pip install --upgrade pip
         pip install -r requirements/requirements.txt -c requirements/constraints.txt
+        sudo add-apt-repository ppa:ubuntugis/ppa && sudo apt-get update
+        sudo apt-get update
+        sudo apt-get install gdal-bin
+        sudo apt-get install libgdal-dev
+        export CPLUS_INCLUDE_PATH=/usr/include/gdal
+        export C_INCLUDE_PATH=/usr/include/gdal
+        pip install GDAL
         
     - name: Lint with flake8
       run: |
