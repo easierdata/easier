@@ -35,7 +35,7 @@ folium==0.13.0
 fonttools==4.38.0
 GDAL==3.5.3
 geopandas==0.12.0
-identify==2.5.7
+identify==2.5.8
 idna==3.4
 ipykernel==6.16.2
 ipython==8.5.0
