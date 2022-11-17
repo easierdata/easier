@@ -8,6 +8,7 @@ token.json
 ### Python
 venv
 *checkpoint.ipynb
+.ipynb_checkpoints
 
 ### Misc
 getting_started_command.sh
@@ -15,6 +16,7 @@ sync_to_other_cluster.sh
 logs
 
 ### Data
+data/*
 data/**/*.TIF
 data/**/*.tar
 data/**/*.txt
