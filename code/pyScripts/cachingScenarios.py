@@ -1,8 +1,11 @@
 import random
+from scipy.spatial import KDTree
 
 number_of_requests = 1000
 cache = {}
 cache_expiration = 0
+
+# Load all scenes from geopackages
 
 
 def ping_cache(scene_indicies) -> list:
