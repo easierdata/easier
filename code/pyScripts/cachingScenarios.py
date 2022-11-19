@@ -72,7 +72,7 @@ if __name__ == "__main__":
                 ignore_index=True,
             )
 
-    for number_of_scenes_per_request in range(2, 10):
+    for number_of_scenes_per_request in range(2, 11):
         for cache_expiration in range(1, 11):
             CACHE = Cache(cache_expiration, number_of_scenes_per_request)
             cold_storage_hits = run_simulation(
