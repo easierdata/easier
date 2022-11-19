@@ -43,5 +43,5 @@ if __name__ == "__main__":
     CACHE_EXPIRATION = 0
     SCENES_PER_REQUEST = random.randint(4, 4)  # 4 scenes per request
     # Load Scenes from csv into pandas dataframe
-    SCENES = pd.read_csv("scenes.csv", header=None).values
+    SCENES = pd.read_csv("data/GIS/landsat_scenes_clipped.csv").values
     run_simulation(SCENES, NUMBER_OF_REQUESTS, SCENES_PER_REQUEST, CACHE_EXPIRATION)
