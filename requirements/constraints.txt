@@ -51,7 +51,7 @@ jupyter-server==1.21.0
 jupyter_client==7.4.4
 jupyter_core==4.11.2
 jupyterlab-pygments==0.2.2
-jupyterlab-widgets==3.0.3
+jupyterlab-widgets==1.1.1
 keyring==23.9.3
 kiwisolver==1.4.4
 lz4==4.0.2
