@@ -1,20 +1,21 @@
-black
+black # formatting
 browser-cookie3
 fiona
-flake8
+flake8 # for linting
 folium
 geopandas
 matplotlib
 numpy
-pandas
+mapclassify # Used for geoDataFrame.explore()
+pandas 
 planetary-computer
-pre-commit
+pre-commit # Used for pre-commit hooks
 pyproj
 pystac-client
-python-dotenv
+python-dotenv # Used for .env file
 requests
 rich[jupyter]
 rtree
-scipy
+scipy # KDtree
 shapely
 wheel
