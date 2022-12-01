@@ -9,6 +9,7 @@
 
 ## Installation
 
+### Setup Environment
 ```shell
 # first install Python 3.8.10 (have not tested newer versions, but they could work)
 $ git clone git@github.com:easierdata/easier.git
@@ -22,18 +23,39 @@ $ pre-commit install
 A general solution is to use `brew install` for the missing executable.
 See description and solution at https://github.com/pyproj4/pyproj/issues/1027
 
-### Car File Generation
-https://github.com/tech-greedy/singularity/blob/main/getting-started.md
+### [Install Fast-API STAC server](https://github.com/stac-utils/stac-fastapi)
+
+## Fetch, Pack, Store, and Retrieve Data from IPFS
+
+### [Fetch Landsat Data via API](https://github.com/easierdata/easier/blob/main/code/Pynotebooks/Inventory_check_Landsat.ipynb)
+
+### [Car File Generation](https://github.com/easierdata/easier/blob/main/code/Pynotebooks/Singularity_CARGenerator.ipynb) (Some storage providers will generate CAR files for you. If not, you can use this script)
+
+See the [Singularity Docs](https://github.com/tech-greedy/singularity/blob/main/getting-started.md) for more info. 
+
+### Transfer Data to S3 Bucket holding area
+
+### Create Filecoin Deal
+
+### Pin Data to
+
+### Fetch Landsat Data via STAC-API (Link to Blog Post)
+
+
+
 
 ## Features
--- TODO
+-- Fetch Landsat Data via API
+-- Pack car files with Singularity
+-- Web3-enriched STAC-Server
+
 ## Coverage
 -- TODO
 ## Test
 -- TODO
 ## Lint
 ```shell
-$ flake8 code
+$ flake8 easier/code
 ```
 
 ---
