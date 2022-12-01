@@ -47,9 +47,9 @@ In order to finalize a Filecoin deal, the storage provider will need access to t
 --TODO
 
 ## Features
--- Fetch Landsat Data via API
--- Pack car files with Singularity
--- Web3-enriched STAC-Server
+- Fetch Landsat Data via API
+- Pack car files with Singularity
+- Web3-enriched STAC-Server
 
 ## Coverage
 -- TODO
