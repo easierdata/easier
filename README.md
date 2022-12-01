@@ -25,24 +25,26 @@ See description and solution at https://github.com/pyproj4/pyproj/issues/1027
 
 ### [Install Fast-API STAC server](https://github.com/stac-utils/stac-fastapi)
 
-## Fetch, Pack, Store, and Retrieve Data from IPFS
+## Pack, Store, and Retrieve Data from IPFS
 
-### [Fetch Landsat Data via API](https://github.com/easierdata/easier/blob/main/code/Pynotebooks/Inventory_check_Landsat.ipynb)
+Before making a Filecoin deal, the data will need to be serialized into a [“Content-Addressable aRchive”](https://ipld.io/specs/transport/car/) (.car) file, which is in raw bytes format. This .car file represents a [Filecoin Piece](https://spec.filecoin.io/systems/filecoin_files/piece/) which is the main unit of negotiation for data that users store on the Filecoin network.
 
-### [Car File Generation](https://github.com/easierdata/easier/blob/main/code/Pynotebooks/Singularity_CARGenerator.ipynb) (Some storage providers will generate CAR files for you. If not, you can use this script)
+### [Car File Generation](https://github.com/easierdata/easier/blob/main/code/Pynotebooks/Singularity_CARGenerator.ipynb)
+*This step is often performed by the [Storage Provider](https://filecoin.io/blog/posts/a-deep-dive-into-the-storage-provider-ecosystem/). If you do not care how the data is placed into cars, you can skip this step.
 
 See the [Singularity Docs](https://github.com/tech-greedy/singularity/blob/main/getting-started.md) for more info. 
 
-### Transfer Data to S3 Bucket holding area
+### [Transfer Data to S3 Bucket holding area](https://github.com/easierdata/easier/blob/main/code/shellScripts/egress_to_s3.sh)
+In order to finalize a Filecoin deal, the storage provider will need access to the data (raw or placed into .CARs). You can definitely expose an endpoint on your own infrastructure, but a common pattern is to send the data to an intermediary location from which the storage provider can stream the data.
 
 ### Create Filecoin Deal
+--WIP
 
-### Pin Data to
+### Pin Data to IPFS
+--TODO
 
-### Fetch Landsat Data via STAC-API (Link to Blog Post)
-
-
-
+## Tutorials
+--TODO
 
 ## Features
 -- Fetch Landsat Data via API
