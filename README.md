@@ -25,7 +25,7 @@ See description and solution at https://github.com/pyproj4/pyproj/issues/1027
 
 ### 2 - [Install Fast-API STAC server](https://github.com/stac-utils/stac-fastapi)
 
-## Pack, Store, and Retrieve Data from IPFS
+## Pack, store, and pin data to IPFS
 
 Before making a Filecoin deal, the data will need to be serialized into a [“Content-Addressable aRchive”](https://ipld.io/specs/transport/car/) (.car) file, which is in raw bytes format. This .car file represents a [Filecoin Piece](https://spec.filecoin.io/systems/filecoin_files/piece/) which is the main unit of negotiation for data that users store on the Filecoin network.
 
@@ -41,6 +41,9 @@ In order to finalize a Filecoin deal, the storage provider will need access to t
 --WIP
 
 ### 4 - Pin Data to IPFS
+--TODO
+
+## Enrich STAC server with IPFS-enriched metadata
 --TODO
 
 ## Tutorials
