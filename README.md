@@ -48,8 +48,11 @@ In order to finalize a Filecoin deal, the storage provider will need access to t
 ### 4 - Pin Data to IPFS
 --TODO
 
-## Enrich STAC server with IPFS-enriched metadata
---TODO
+## Enrich STAC server with STAC metadata file with CIDs
+1 -  Place metadata file into testdata/landsat then run:
+```shell
+make run-landsat-pgstac
+```
 
 ## Tutorials
 --TODO
