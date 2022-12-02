@@ -11,7 +11,7 @@
 
 ### 1 - Setup Environment
 ```shell
-# first install Python 3.8.10 (have not tested newer versions, but they could work)
+# first install Python 3.10.8 (have not tested newer versions, but they could work)
 $ git clone git@github.com:easierdata/easier.git
 $ python3 -m venv venv
 $ source venv/bin/activate
