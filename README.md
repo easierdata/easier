@@ -39,8 +39,31 @@ Before making a Filecoin deal, the data will need to be serialized into a [“Co
 
 See the [Singularity Docs](https://github.com/tech-greedy/singularity/blob/main/getting-started.md) for more info. 
 
-### 2 - [Transfer Data to S3 Bucket holding area](https://github.com/easierdata/easier/blob/main/code/shellScripts/egress_to_s3.sh)
-In order to finalize a Filecoin deal, the storage provider will need access to the data (raw or placed into .CARs). You can definitely expose an endpoint on your own infrastructure, but a common pattern is to send the data to an intermediary location from which the storage provider can stream the data.
+### 2 - Distribute .CAR files to storage providers (SPs)
+In order to finalize a Filecoin deal, the storage provider will need access to the data (raw or placed into .CARs). There are a few ways to do this.
+
+A - Transfer the data manually by flying/mailing physical hard drives to the SP.
+
+B - [Transfer Data to S3 Bucket holding area](https://github.com/easierdata/easier/blob/main/code/shellScripts/egress_to_s3.sh)
+
+C - Set up an HTTP server on your own infrastructure so the data can be pushed/pulled to the SP.
+
+```shell
+sudo apt install nginx
+```
+
+Edit `/etc/nginx/sites-available/default` and add below lines
+
+```text
+server {
+  ...
+  location / {
+    root /home/user/outDir;
+  }
+  ...
+}
+```
+
 
 ### 3 - Create Filecoin Deal
 --WIP
