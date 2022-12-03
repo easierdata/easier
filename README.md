@@ -25,7 +25,7 @@ See description and solution at https://github.com/pyproj4/pyproj/issues/1027
 
 ### 2 - [Install Fast-API STAC server](https://github.com/stac-utils/stac-fastapi)
 
-### 3 - Start STAC server
+### 3 - Start STAC server and database
 ```
 make docker-run-pgstac
 ```
