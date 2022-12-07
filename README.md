@@ -88,14 +88,18 @@ If you are working with a SP, you can stop here. If you are not working with a S
 ## Create Filecoin Deal
 We'll point you to the singularity docs for this step. See [this section](https://github.com/tech-greedy/singularity/blob/main/getting-started.md#deal-making) of the docs for more info on how to create a deal.
 ## Enrich STAC server with STAC metadata file with CIDs
+If you are working with an SP, you will need to get the CIDs from them. Here is a [script]() you can follow to ask the SP for the CIDs. Once you have the CIDs, you can run the following command to enrich the STAC server with the CIDs.
 
-1 -  Place metadata file into testdata/landsat then run:
 ```shell
-make run-landsat-pgstac
+$ python3 code/pyScripts/validate_stac.py --stac_file testdata/<filename>.json
+$ make run-landsat-pgstac
 ```
 
-## Tutorials
---TODO
+## Run Sample Queries to make sure everything is working
+```shell
+$ curl http://<domain>/stac/collections
+$ curl http://<domain>/stac/search?bbox=-122.5,37.5,-122.3,37.7&datetime=2019-01-01/2019-12-31
+```
 
 ## Features
 - Fetch Landsat Data via API
@@ -104,7 +108,7 @@ make run-landsat-pgstac
 
 ## Coverage
 -- TODO
-## Test
+## Tests
 -- TODO
 ## Lint
 ```shell
