@@ -7,6 +7,20 @@
 - [FAQ](#faq)
 - [License](#license)
 
+
+## Terminology
+- **SP** - Storage Provider
+- **CID** - Content Identifier
+- **CAR** - Content-Addressable aRchive
+- **Piece** - The main unit of negotiation for data that users store on the Filecoin network.
+- **Sector** - A sector is a fixed-size (32GiB) chunk of data that is stored on the Filecoin network. A sector is made up of one or more pieces. A sector is the smallest unit of storage that a storage provider can commit to storing on the Filecoin network.
+- **Deal** - A deal is a commitment by a storage provider to store a piece of data for a client. A deal is made up of a piece and a sector. A deal is the smallest unit of storage that a client can commit to storing on the Filecoin network.
+- **STAC** - SpatioTemporal Asset Catalog
+- **S3** - Amazon Simple Storage Service
+- **Singularity** - A tool for packing data into CAR files and creating Filecoin deals.
+
+
+
 ## Installation
 
 ### Setup Environment
@@ -73,11 +87,8 @@ where `outDir` is the directory where the CAR files are located.
 If you are working with a SP, you can stop here. If you are not working with a SP, you will need to continue with the following steps.
 ## Create Filecoin Deal
 We'll point you to the singularity docs for this step. See [this section](https://github.com/tech-greedy/singularity/blob/main/getting-started.md#deal-making) of the docs for more info on how to create a deal.
-
-## Pin Data to IPFS
---TODO
-
 ## Enrich STAC server with STAC metadata file with CIDs
+
 1 -  Place metadata file into testdata/landsat then run:
 ```shell
 make run-landsat-pgstac
