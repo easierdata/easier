@@ -3,8 +3,23 @@
 
 - [Installation](#installation)
   * [Clone Repo and create Python Virtual Environment](#clone-repo-and-create-python-virtual-environment)
-   * [Install Singularity](#install-singularity)
-- [Features](#features)
+  * [Install Singularity](#install-singularity)
+  * [Install IPFS](#install-ipfs)
+  * [Install Lotus](#install-lotus)
+- [Prepare Data for Filecoin Deal](#prepare-data-for-filecoin-deal)
+  * [Optimize Data for CAR file packing](#optimize-data-for-car-file-packing)
+  * [Pack Data into CAR files](#pack-data-into-car-files)
+  * [Distribute .CAR files to storage providers](#distribute-car-files-to-storage-providers)
+- [Prepare Data for Filecoin Deal](#prepare-data-for-filecoin-deal)
+  * [Optimize Data for CAR file packing](#optimize-data-for-car-file-packing)
+  * [Pack Data into CAR files](#pack-data-into-car-files)
+  * [Distribute CAR files to storage providers](#distribute-car-files-to-storage-providers)
+- [Make Filecoin Deal](#make-filecoin-deal)
+  * [Use Singularity to make Filecoin Deal](#use-singularity-to-make-filecoin-deal)
+- [Enrich STAC server with CIDs](#enrich-stac-server-with-cids)
+  * [Use Deal Manifest File to Create STAC metadata](#use-deal-manifest-file-to-create-stac-metadata)
+  * [Run Sample Queries to Test STAC Server](#run-sample-queries-to-test-stac-server)
+
 - [Contributing](#contributing)
 - [FAQ](#faq)
 - [License](#license)
@@ -58,7 +73,7 @@ TODO
 
 ## Prepare Data for Filecoin Deal
 
-### Optimize Data for CAR file packing (Optional)
+### Optimize Data for CAR file packing
 Currently, there is a performance hit when multiple sectors are accessed when retrieving files on Filcoin. For geospatial data, there is an opportunity for optimization by packing data that is 'nearer' to each other in each sector. This can reduce the number of sectors accessed when retrieving data. See [this blog post] for more info.
 
 ### Pack Data into CAR files
@@ -69,7 +84,7 @@ Before making a Filecoin deal, the data will need to be serialized into a [“Co
 We will use Singularity to pack data into .CAR files. See the [Singularity Docs](https://github.com/tech-greedy/singularity/blob/main/getting-started.md) for more info. 
 [Example Python Notebook to pack CAR files](https://github.com/easierdata/easier/blob/main/code/Pynotebooks/Singularity_CARGenerator.ipynb)
 
-### Distribute .CAR files to storage providers (Optional)
+### Distribute .CAR files to storage providers
 *In order to finalize a Filecoin deal, the storage provider will need access to the data (raw or placed into .CARs). There are a few ways to do this. If you are not working with a SP, you can skip this step.
 
 A - Transfer the data manually by flying/mailing physical hard drives to the SP.
@@ -102,9 +117,11 @@ where `outDir` is the directory where the CAR files are located.
 If you are working with a SP, you can stop here. If you are not working with a SP, you will need to continue with the following steps.
 
 ## Make Filecoin Deal
+### Use Singularity to make Filecoin deal.
 We'll point you to the singularity docs for this step. See [this section](https://github.com/tech-greedy/singularity/blob/main/getting-started.md#deal-making) of the docs for more info on how to create a deal.
 
-## Enrich STAC server with STAC metadata file with CIDs
+## Enrich STAC server with CIDs
+### Use Deal Manifest File to create STAC metadata
 If you are working with an SP, you will need to get the CIDs from them. Here is a [script]() you can follow to ask the SP for the CIDs. Once you have the CIDs, you can run the following command to enrich the STAC server with the CIDs.
 
 ```shell
@@ -112,7 +129,7 @@ $ python3 code/pyScripts/validate_stac.py --stac_file testdata/<filename>.json
 $ make run-landsat-pgstac
 ```
 
-## Run Sample Queries to make sure everything is working
+### Run Sample Queries to Test STAC Server
 ```shell
 $ curl http://<domain>/stac/collections
 $ curl http://<domain>/stac/search?bbox=-122.5,37.5,-122.3,37.7&datetime=2019-01-01/2019-12-31
