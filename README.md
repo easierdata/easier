@@ -64,8 +64,8 @@ See the [Singularity documentation](https://github.com/tech-greedy/singularity/b
 ### Install IPFS
 TODO
 
-### Install Lotus
-TODO
+### Install Boost
+See [Building and Installing Boost](https://github.com/filecoin-project/boost#building-and-installing-boost) for installation steps.
 
 ## Prepare Data for Filecoin Deal
 
