@@ -83,9 +83,7 @@ def load_todo_list():
     """
     return a list of product id to download
     """
-    missing_products_l1 = pd.read_csv(
-        "../../../data/Landsat/missing_id.csv"
-    ).id.tolist()
+    missing_products_l1 = pd.read_csv("../../data/Landsat/missing_id.csv").id.tolist()
     finished = [
         fp.split("/")[-1][:-4]
         for fp in glob.glob("../../data/landsat/**/*.tar", recursive=True)

@@ -24,7 +24,7 @@ load_dotenv()
 
 
 path = "../../data/landsat/m2m_download"  # Fill a valid download path
-maxthreads = 10  # Threads count for downloads
+maxthreads = 16  # Threads count for downloads
 sema = threading.Semaphore(value=maxthreads)
 label = datetime.datetime.now().strftime(
     "%Y%m%d_%H%M%S"
@@ -113,9 +113,9 @@ def downloadFile(url):
         print(f"Downloaded and extracted {filename}\n")
         sema.release()
     except Exception:
-        print(f"Failed to download from {url}. Will try to re-download.")
+        print(f"Failed to download from {url}. Will skip.")
         sema.release()
-        runDownload(threads, url)
+        # runDownload(threads, url)
 
 
 def runDownload(threads, url):
