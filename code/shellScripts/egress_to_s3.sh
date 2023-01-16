@@ -1,14 +1,19 @@
-startdate="20211101"
-enddate="20221101"
+startdate="20211107"
+enddate="20220501"
 datestr="$startdate"
+bucket="piknik:uofm-data1"
 module load rclone
-while [ "$(date -d $datestr +%Y%m%d)" -lt "$(date -d $enddate +%Y%m%d)" ]; do
+while [ "$(date -d "$datestr" +%Y%m%d)" -lt "$(date -d "$enddate" +%Y%m%d)" ]; do
     echo $datestr
+    # Uncomment to extract stac information from the bundle
     #sh code/shellScripts/extract_stac_from_tar.sh $datestr
-    # move files to save space
+    
+    #Option 1: move files to save space
+    
     #rclone move -v --delete-empty-src-dirs --ignore-existing --checkers 50 --retries 6 --s3-upload-concurrency 32 --transfers 16 --s3-chunk-size 100M data/landsat/m2m_download/$datestr piknik:uofm-data1/landsat9-c2-l1/$datestr
-    #force update for bug files
+    
+    #Option 2: force update for bug files
     #rclone copy -v --ignore-existing --checkers 50 --retries 6 --s3-upload-concurrency 32 --transfers 16 --s3-chunk-size 100M data/landsat/m2m_download/$datestr piknik:uofm-data1/landsat9-c2-l1/$datestr
     
-    datestr=$(date +%Y%m%d -d "$datestr + 1 day" )
+datestr=$(date +%Y%m%d -d "$datestr + 1 day" )
 done
