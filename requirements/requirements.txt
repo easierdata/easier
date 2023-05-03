@@ -19,3 +19,4 @@ rtree
 scipy # KDtree
 shapely
 wheel
+ipfs-api
