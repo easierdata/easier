@@ -1,7 +1,7 @@
 ### Secrets
 token.json
 .env
-
+.cer
 ### System Files
 .DS_Store
 
