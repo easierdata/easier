@@ -22,6 +22,11 @@ profiles = {
         "../../data/gedi/inventory_GEDI_L4A_AGB_Density_V2_1_latest.csv",
         220000,
     ],
+    "4A_GW": [
+        "GEDI_L4A_AGB_Density_GW",
+        "../../data/gedi/inventory_GEDI_L4A_AGB_Density_GW_latest.csv",
+        400,
+    ],
     "4B": [
         "GEDI_L4B_Gridded_Biomass",
         "../../data/gedi/inventory_GEDI_L4B_Gridded_Biomass_latest.csv",
