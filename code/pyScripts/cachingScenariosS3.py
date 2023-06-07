@@ -1,5 +1,7 @@
 import random
 import requests
+import tkinter as tk
+from tkinter import ttk
 
 # import boto3
 import subprocess
@@ -157,12 +159,60 @@ def get_data(cid: str, piece_cid: str) -> bytes:
     return None
 
 
-if __name__ == "__main__":
-    cid = "bafybeigoe4ss23hrahns7sbqus6tas4ovvnhupmrnrym5zluu2ssg5yj5u"
-    piece_cid = "baga6ea4seaqfnimohx7eefyfgc3m5hvhy4hmdukyvlhw4vwacwbdlvpfvod4wky"
-
+def get_data_gui():
+    cid = cid_entry.get()
+    piece_cid = piece_cid_entry.get()
     data = get_data(cid, piece_cid)
     if data:
-        print(f"Got data: {data}")
+        result_label.config(text=f"Got data: {data}")
     else:
-        print("Unable to get data")
+        result_label.config(text="Unable to get data")
+
+
+def run_gui():
+    global root, cid_entry, piece_cid_entry, result_label
+    root = tk.Tk()
+    root.geometry("400x300")  # Define window size
+    root.title("Data Fetcher")  # Add a title to the window
+
+    style = ttk.Style()
+    style.configure("TLabel", font=("Arial", 12))  # Increase font size for labels
+    style.configure("TButton", font=("Arial", 12))  # Increase font size for buttons
+
+    frame = ttk.Frame(root, padding="10 10 10 10")  # Add padding to the frame
+    frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+
+    cid_label = ttk.Label(frame, text="CID:")
+    cid_label.grid(row=0, column=0, sticky="w")
+    cid_entry = ttk.Entry(frame)
+    cid_entry.grid(row=0, column=1, sticky="w")
+
+    piece_cid_label = ttk.Label(frame, text="Piece CID:")
+    piece_cid_label.grid(row=1, column=0, sticky="w")
+    piece_cid_entry = ttk.Entry(frame)
+    piece_cid_entry.grid(row=1, column=1, sticky="w")
+
+    get_data_button = ttk.Button(frame, text="Get Data", command=get_data_gui)
+    get_data_button.grid(row=2, column=0, columnspan=2)
+
+    result_label = ttk.Label(frame, text="")
+    result_label.grid(row=3, column=0, columnspan=2)
+
+    root.columnconfigure(0, weight=1)  # Makes the column expandable
+    root.rowconfigure(0, weight=1)  # Makes the row expandable
+
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    # To run as standalone script, uncomment the following two lines:
+    # cid = "bafybeigoe4ss23hrahns7sbqus6tas4ovvnhupmrnrym5zluu2ssg5yj5u"
+    # piece_cid = "baga6ea4seaqfnimohx7eefyfgc3m5hvhy4hmdukyvlhw4vwacwbdlvpfvod4wky"
+    # data = get_data(cid, piece_cid)
+    # if data:
+    #     print(f"Got data: {data}")
+    # else:
+    #     print("Unable to get data")
+
+    # To run in GUI mode, uncomment the following line:
+    run_gui()
