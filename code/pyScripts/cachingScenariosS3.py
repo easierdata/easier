@@ -34,9 +34,9 @@ def request_data_from_storage_provider(
 def get_data_from_filecoin(cid: str, piece_cid: str, storage_providers: set) -> bytes:
     # Create a storage provider dictionary where the primary key is the storage provider ID and the value is the HTTP web server endpoint
     storage_providers_dict = {
-        "12D3KooWQY8k3XoH76BPPPXsrP5BWzTHpfC78u9aHS5FdTx2EXKZ": "localhost:8080/fetch",
-        "12D3KooWQY8k3XoH76BPPPXsrP5BWzTHpfC78u9aHS5FdTx2EXKF8": "http://www.storageprovider2.com",
-        "12D3KooWQY8k3XoH76BPPPXsrP5BWzTHpfC78u9aHS5FdTx2EXKG": "http://www.storageprovider3.com",
+        "12D3KooWQY8k3XoH76BPPPXsrP5BWzTHpfC78u9aHS5FdTx2EXKZ": "http://www.storageprovider1.com/fetch",
+        "12D3KooWQY8k3XoH76BPPPXsrP5BWzTHpfC78u9aHS5FdTx2EXKF8": "http://www.storageprovider2.com/fetch",
+        "12D3KooWQY8k3XoH76BPPPXsrP5BWzTHpfC78u9aHS5FdTx2EXKG": "http://www.storageprovider3.com/fetch",
     }
     storage_providers_ids_set = {
         "12D3KooWQY8k3XoH76BPPPXsrP5BWzTHpfC78u9aHS5FdTx2EXKZ",
@@ -151,18 +151,23 @@ def get_data(cid: str, piece_cid: str) -> bytes:
     if data:
         log_message("Got data from S3")
         return data
+    log_message("Unable to get data from S3")
 
     # Check IPFS for the data
+    log_message("Checking warm layer (IPFS) for data")
     data = check_ipfs_for_data(cid)
     if data:
         log_message("Got data from IPFS")
         return data
+    log_message("Unable to get data from IPFS")
 
     # Check Filecoin for the data
+    log_message("Checking cold layer (Filecoin) for data")
     data = check_filecoin_for_data(cid=cid, piece_cid=piece_cid)
     if data:
         log_message("Got data from Filecoin")
         return data
+    log_message("Unable to get data from Filecoin")
 
     return None
 
