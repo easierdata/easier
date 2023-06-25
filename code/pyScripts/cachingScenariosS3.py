@@ -1,47 +1,57 @@
 import random
 import requests
 import tkinter as tk
-from tkinter import ttk, scrolledtext
-
-# import boto3
 import subprocess
+import boto3
 
-IN_GUI_MODE = False
+IN_GUI_MODE = False  # Override in __main__
+
+MY_S3_AUTH = {
+    "aws_access_key_id": "MY_AWS_ACCESS_KEY_ID",
+    "aws_secret_access_key": "MY_AWS_SECRET_ACCESS_KEY",
+    "endpoint_url": "http://localhost:9000",
+    "bucket_name": "my-bucket",
+}
 
 
 # Request data from storage provider web server
-def request_data_from_storage_provider(
-    http_request_endpoint: str, piece_cid: str, content_cid: str
+def request_data_from_resource(
+    auth_dict: str, piece_cid: str, content_cid: str
 ) -> bytes:
-    return "🗾"
-    request_url = (
-        f"{http_request_endpoint}?piece_cid={piece_cid}&content_cid={content_cid}"
-    )
-
-    response = requests.get(request_url)
-
-    if response.status_code == 200:
-        data = response.content
-        return data
-
-    else:
-        log_message(
-            f"Error: Received status code {response.status_code} from web server"
+    if auth_dict["s3"]:
+        s3 = boto3.resource(
+            "s3",
+            aws_access_key_id=auth_dict["s3"]["aws_access_key_id"],
+            aws_secret_access_key=auth_dict["s3"]["aws_secret_access_key"],
+            endpoint_url=auth_dict["s3"]["endpoint_url"],
+            bucket_name=auth_dict["s3"]["bucket_name"],
         )
-        return None
+
+        try:
+            obj = s3.Object(piece_cid)
+            data = obj.get()["Body"].read()
+            return data
+        except Exception as e:
+            log_message(f"Error: Unable to get data from S3: {e}")
+            return None
 
 
-def get_data_from_filecoin(cid: str, piece_cid: str, storage_providers: set) -> bytes:
+def get_data_from_filecoin(
+    content_cid: str, piece_cid: str, storage_providers: set
+) -> bytes:
     # Create a storage provider dictionary where the primary key is the storage provider ID and the value is the HTTP web server endpoint
-    storage_providers_dict = {
-        "12D3KooWQY8k3XoH76BPPPXsrP5BWzTHpfC78u9aHS5FdTx2EXKZ": "http://www.storageprovider1.com/fetch",
-        "12D3KooWQY8k3XoH76BPPPXsrP5BWzTHpfC78u9aHS5FdTx2EXKF8": "http://www.storageprovider2.com/fetch",
-        "12D3KooWQY8k3XoH76BPPPXsrP5BWzTHpfC78u9aHS5FdTx2EXKG": "http://www.storageprovider3.com/fetch",
-    }
     storage_providers_ids_set = {
         "12D3KooWQY8k3XoH76BPPPXsrP5BWzTHpfC78u9aHS5FdTx2EXKZ",
         "12D3KooWQY8k3XoH76BPPPXsrP5BWzTHpfC78u9aHS5FdTx2EXKF8",
         "12D3KooWQY8k3XoH76BPPPXsrP5BWzTHpfC78u9aHS5FdTx2EXKG",
+    }
+
+    auth_dict = {
+        "12D3KooWQY8k3XoH76BPPPXsrP5BWzTHpfC78u9aHS5FdTx2EXKF8": {
+            "http_web_server": {
+                "endpoint": "http://localhost:5000",
+            }
+        }
     }
 
     # Find storage providers that are not in the storage_providers_ids_set
@@ -65,9 +75,7 @@ def get_data_from_filecoin(cid: str, piece_cid: str, storage_providers: set) -> 
         log_message(
             f"Trying Storage Provider ID: {storage_provider_id} found via cid.contact API"
         )
-        provider_data = request_data_from_storage_provider(
-            storage_providers_dict[storage_provider_id], piece_cid, cid
-        )
+        provider_data = request_data_from_resource(auth_dict, piece_cid, content_cid)
 
         if provider_data:
             return provider_data
@@ -117,37 +125,40 @@ def check_ipfs_for_data(cid: str) -> bytes:  # Warm layer
         return None
 
 
-def check_filecoin_for_data(
-    cid: str, piece_cid, network_indexer_url="https://cid.contact"
-) -> bytes:  # Cold layer
-    # We use a network indexer (cid.contact) to find the storage providers that have the CID we are looking for in a storage deal
-    def process_storage_provider_response(response: dict) -> set:
-        storage_providers = set()
-        for result in response:
-            provider_id = result["Provider"]["ID"]
-            storage_providers.add(provider_id)
-        return storage_providers
-
-    api_endpoint = f"{network_indexer_url}/cid/{cid}"
-    response = requests.get(api_endpoint)
+def find_storage_providers_for_cid(cid: str) -> set:
+    network_indexer_endpoint = f"https://cid.contact/cid/{cid}"
+    response = requests.get(network_indexer_endpoint)
 
     if response.status_code == 200:
         data = response.json()
-        storage_providers = data["MultihashResults"][0]["ProviderResults"]
-        if len(storage_providers) > 0:
-            return get_data_from_filecoin(
-                cid, piece_cid, process_storage_provider_response(storage_providers)
-            )
-        else:
-            log_message("No storage providers found for CID")
-            return None
+        storage_providers_response = data["MultihashResults"][0]["ProviderResults"]
+        storage_providers_ids_set = {
+            result["Provider"]["ID"] for result in storage_providers_response
+        }
+        return storage_providers_ids_set
+    else:
+        log_message("Error: Unable to get data from cid.contact API")
+        return set()
 
 
-def get_data(cid: str, piece_cid: str) -> bytes:
+def check_filecoin_for_data(
+    cid: str,
+    piece_cid,
+) -> bytes:
+    storage_providers_ids = find_storage_providers_for_cid(cid)
+
+    if len(storage_providers_ids) > 0:
+        return get_data_from_filecoin(cid, piece_cid, storage_providers_ids)
+    else:
+        log_message("No storage providers found for CID")
+        return None
+
+
+def get_data(content_cid: str, piece_cid: str) -> bytes:
     # Check the hot layer for the data
     log_message("Checking hot layer (S3) for data")
 
-    data = check_s3_for_data(cid)
+    data = check_s3_for_data(auth_dict=MY_S3_AUTH, content_cid=content_cid)
     if data:
         log_message("Got data from S3")
         return data
@@ -155,7 +166,7 @@ def get_data(cid: str, piece_cid: str) -> bytes:
 
     # Check IPFS for the data
     log_message("Checking warm layer (IPFS) for data")
-    data = check_ipfs_for_data(cid)
+    data = check_ipfs_for_data(content_cid)
     if data:
         log_message("Got data from IPFS")
         return data
@@ -163,7 +174,7 @@ def get_data(cid: str, piece_cid: str) -> bytes:
 
     # Check Filecoin for the data
     log_message("Checking cold layer (Filecoin) for data")
-    data = check_filecoin_for_data(cid=cid, piece_cid=piece_cid)
+    data = check_filecoin_for_data(content_cid=content_cid, piece_cid=piece_cid)
     if data:
         log_message("Got data from Filecoin")
         return data
@@ -189,35 +200,35 @@ def run_gui():
     root.resizable(True, True)
     root.title("Data Fetcher")  # Add a title to the window
 
-    style = ttk.Style()
+    style = tk.ttk.Style()
     style.configure("TLabel", font=("Arial", 12))  # Increase font size for labels
     style.configure("TButton", font=("Arial", 12))  # Increase font size for buttons
 
-    frame = ttk.Frame(root, padding="10 10 10 10")  # Add padding to the frame
+    frame = tk.ttk.Frame(root, padding="10 10 10 10")  # Add padding to the frame
     frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
     frame.columnconfigure(1, weight=1)
 
-    cid_label = ttk.Label(frame, text="CID:")
+    cid_label = tk.ttk.Label(frame, text="CID:")
     cid_label.grid(row=0, column=0, padx=(100, 0), sticky="w")
-    cid_entry = ttk.Entry(frame, width=30)  # Set the width of the entry field
+    cid_entry = tk.ttk.Entry(frame, width=30)  # Set the width of the entry field
     cid_entry.grid(row=0, column=1, padx=(0, 100), sticky="e")
     cid_entry.insert(0, "bafybeigoe4ss23hrahns7sbqus6tas4ovvnhupmrnrym5zluu2ssg5yj5u")
 
-    piece_cid_label = ttk.Label(frame, text="Piece CID:")
+    piece_cid_label = tk.ttk.Label(frame, text="Piece CID:")
     piece_cid_label.grid(row=1, column=0, padx=(100, 0), sticky="w")
-    piece_cid_entry = ttk.Entry(frame, width=30)  # Set the width of the entry field
+    piece_cid_entry = tk.ttk.Entry(frame, width=30)  # Set the width of the entry field
     piece_cid_entry.grid(row=1, column=1, padx=(0, 100), sticky="e")
     piece_cid_entry.insert(
         0, "baga6ea4seaqfnimohx7eefyfgc3m5hvhy4hmdukyvlhw4vwacwbdlvpfvod4wky"
     )
 
-    get_data_button = ttk.Button(frame, text="Get Data", command=get_data_gui)
+    get_data_button = tk.ttk.Button(frame, text="Get Data", command=get_data_gui)
     get_data_button.grid(row=2, column=0, columnspan=2, pady=(10, 0))
 
-    result_label = ttk.Label(frame, text="")
+    result_label = tk.ttk.Label(frame, text="")
     result_label.grid(row=3, column=0, columnspan=2, pady=(10, 0))
 
-    log_text = scrolledtext.ScrolledText(frame, width=100, height=10)
+    log_text = tk.scrolledtext.ScrolledText(frame, width=100, height=10)
     log_text.grid(row=4, column=0, columnspan=2, pady=(10, 0))
 
     root.columnconfigure(0, weight=1)  # Makes the column expandable
