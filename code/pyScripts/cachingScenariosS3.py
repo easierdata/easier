@@ -3,14 +3,20 @@ import requests
 import tkinter as tk
 import subprocess
 import boto3
+import dotenv
+import os
+
+dotenv.load_dotenv()
 
 IN_GUI_MODE = False  # Override in __main__
 
 MY_S3_AUTH = {
-    "aws_access_key_id": "MY_AWS_ACCESS_KEY_ID",
-    "aws_secret_access_key": "MY_AWS_SECRET_ACCESS_KEY",
-    "endpoint_url": "http://localhost:9000",
-    "bucket_name": "my-bucket",
+    "s3": {
+        "aws_access_key_id": os.environ.get("MY_AWS_ACCESS_KEY_ID"),
+        "aws_secret_access_key": os.environ.get("MY_AWS_SECRET_ACCESS_KEY"),
+        "endpoint_url": os.environ.get("MY_AWS_ENDPOINT_URL"),
+        "bucket_name": os.environ.get("MY_AWS_BUCKET_NAME"),
+    }
 }
 
 
@@ -28,7 +34,7 @@ def request_data_from_resource(
         )
 
         try:
-            obj = s3.Object(piece_cid)
+            obj = s3.Object(content_cid)
             data = obj.get()["Body"].read()
             return data
         except Exception as e:
@@ -89,29 +95,6 @@ def get_data_from_filecoin(
     return None
 
 
-def check_s3_for_data(cid: str) -> bytes:  # Hot layer
-    # hit = random.randint(0, 1)
-    hit = False
-    if hit:
-        return b"Data from S3"
-    else:
-        return None
-    # # Create a session using your AWS credentials
-    # s3 = boto3.resource("s3")
-
-    # # Assume your bucket name is "my-bucket"
-    # bucket = s3.Bucket("my-bucket")
-
-    # # Try to get the object
-    # try:
-    #     obj = bucket.Object(cid)
-    #     data = obj.get()["Body"].read()
-    #     return data
-    # except Exception as e:
-    #     log_message(f"Error: Unable to get data from S3: {e}")
-    #     return None
-
-
 def check_ipfs_for_data(cid: str) -> bytes:  # Warm layer
     # Try to get the data
     try:
@@ -158,7 +141,9 @@ def get_data(content_cid: str, piece_cid: str) -> bytes:
     # Check the hot layer for the data
     log_message("Checking hot layer (S3) for data")
 
-    data = check_s3_for_data(auth_dict=MY_S3_AUTH, content_cid=content_cid)
+    data = request_data_from_resource(
+        auth_dict=MY_S3_AUTH, piece_cid=piece_cid, content_cid=content_cid
+    )
     if data:
         log_message("Got data from S3")
         return data
@@ -248,14 +233,14 @@ def log_message(message: str):
 
 if __name__ == "__main__":
     # To run as standalone script, uncomment the following two lines:
-    # cid = "bafybeigoe4ss23hrahns7sbqus6tas4ovvnhupmrnrym5zluu2ssg5yj5u"
-    # piece_cid = "baga6ea4seaqfnimohx7eefyfgc3m5hvhy4hmdukyvlhw4vwacwbdlvpfvod4wky"
-    # data = get_data(cid, piece_cid)
-    # if data:
-    #     print(f"Got data: {data}")
-    # else:
-    #     print("Unable to get data")
+    cid = "bafybeigoe4ss23hrahns7sbqus6tas4ovvnhupmrnrym5zluu2ssg5yj5u"
+    piece_cid = "baga6ea4seaqfnimohx7eefyfgc3m5hvhy4hmdukyvlhw4vwacwbdlvpfvod4wky"
+    data = get_data(cid, piece_cid)
+    if data:
+        print(f"Got data: {data}")
+    else:
+        print("Unable to get data")
 
     # To run in GUI mode, uncomment the following lines:
-    IN_GUI_MODE = True
-    run_gui()
+    # IN_GUI_MODE = True
+    # run_gui()
