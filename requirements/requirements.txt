@@ -1,22 +1,22 @@
-black # formatting
-browser-cookie3
-fiona
-flake8 # for linting
-folium
-geopandas
-matplotlib
-numpy
-mapclassify # Used for geoDataFrame.explore()
-pandas 
-planetary-computer
-pre-commit # Used for pre-commit hooks
-pyproj
-pystac-client
-python-dotenv # Used for .env file
-requests
-rich[jupyter]
-rtree
-scipy # KDtree
-shapely
-wheel
-ipfs-api
+black==23.3.0 # formatting
+boto3==1.26.160
+browser-cookie3==0.19.1
+fiona==1.9.4.post1
+flake8==6.0.0 # for linting
+folium==0.14.0
+geopandas==0.13.2
+matplotlib==3.7.1
+numpy==1.25.0
+mapclassify==2.5.0 # Used for geoDataFrame.explore()
+pandas==2.0.2
+planetary-computer==0.5.1
+pre-commit==3.3.3 # Used for pre-commit hooks
+pyproj==3.6.0
+pystac-client==0.7.1
+python-dotenv==1.0.0 # Used for .env file
+requests==2.31.0
+rich[jupyter]==13.4.2
+rtree==1.0.1
+scipy==1.10.1 # KDtree
+shapely==2.0.1
+ipfs-api==0.2.3
