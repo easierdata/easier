@@ -30,12 +30,10 @@ def request_data_from_resource(
             "s3",
             aws_access_key_id=auth_dict[peer_id]["s3"]["aws_access_key_id"],
             aws_secret_access_key=auth_dict[peer_id]["s3"]["aws_secret_access_key"],
-            endpoint_url=auth_dict[peer_id]["s3"]["endpoint_url"],
         )
-        bucket = s3.Bucket(auth_dict[peer_id]["s3"]["bucket_name"])
 
         try:
-            obj = bucket.Object(content_cid)  # access Object from the Bucket
+            obj = s3.Object(auth_dict[peer_id]["s3"]["bucket_name"], cid)
             data = obj.get()["Body"].read()
             return data
         except Exception as e:
@@ -160,15 +158,18 @@ def check_filecoin_for_data(
 
 def get_data(content_cid: str, piece_cid: str) -> bytes:
     # Check the hot layer for the data
-    # log_message("Checking hot layer (S3) for data")
+    log_message("Checking hot layer (S3) for data")
 
-    # data = request_data_from_resource(
-    #     auth_dict=MY_S3_AUTH, piece_cid=piece_cid, content_cid=content_cid
-    # )
-    # if data:
-    #     log_message("Got data from S3")
-    #     return data
-    # log_message("Unable to get data from S3")
+    data = request_data_from_resource(
+        auth_dict=MY_S3_AUTH,
+        peer_id="12D3KooWQY8k3XoH76BPPPXsrP5BWzTHpfC78u9aHS5FdTx2EXKG",
+        piece_cid=piece_cid,
+        content_cid=content_cid,
+    )
+    if data:
+        log_message("Got data from S3")
+        return data
+    log_message("Unable to get data from S3")
 
     # Check IPFS for the data
     log_message("Checking warm layer (IPFS) for data")
@@ -254,6 +255,7 @@ def log_message(message: str):
 
 if __name__ == "__main__":
     # To run as standalone script, uncomment the following two lines:
+    # cid = "QmNn6URxrsvtMw3FwMXDY8RsuWgQq4zKkxrnA5QNpx2aWq"  # in S3
     cid = "bafybeigoe4ss23hrahns7sbqus6tas4ovvnhupmrnrym5zluu2ssg5yj5u"
     piece_cid = "baga6ea4seaqfnimohx7eefyfgc3m5hvhy4hmdukyvlhw4vwacwbdlvpfvod4wky"
     data = get_data(cid, piece_cid)
