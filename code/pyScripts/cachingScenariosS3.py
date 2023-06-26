@@ -11,34 +11,48 @@ dotenv.load_dotenv()
 IN_GUI_MODE = False  # Override in __main__
 
 MY_S3_AUTH = {
-    "s3": {
-        "aws_access_key_id": os.environ.get("MY_AWS_ACCESS_KEY_ID"),
-        "aws_secret_access_key": os.environ.get("MY_AWS_SECRET_ACCESS_KEY"),
-        "endpoint_url": os.environ.get("MY_AWS_ENDPOINT_URL"),
-        "bucket_name": os.environ.get("MY_AWS_BUCKET_NAME"),
+    "12D3KooWQY8k3XoH76BPPPXsrP5BWzTHpfC78u9aHS5FdTx2EXKG": {
+        "s3": {
+            "aws_access_key_id": os.environ.get("MY_AWS_ACCESS_KEY_ID"),
+            "aws_secret_access_key": os.environ.get("MY_AWS_SECRET_ACCESS_KEY"),
+            "endpoint_url": os.environ.get("MY_AWS_ENDPOINT_URL"),
+            "bucket_name": os.environ.get("MY_AWS_BUCKET_NAME"),
+        }
     }
 }
 
 
-# Request data from storage provider web server
 def request_data_from_resource(
-    auth_dict: str, piece_cid: str, content_cid: str
+    auth_dict: dict, peer_id: str, piece_cid: str, content_cid: str
 ) -> bytes:
-    if auth_dict["s3"]:
+    if "s3" in auth_dict[peer_id]:
         s3 = boto3.resource(
             "s3",
-            aws_access_key_id=auth_dict["s3"]["aws_access_key_id"],
-            aws_secret_access_key=auth_dict["s3"]["aws_secret_access_key"],
-            endpoint_url=auth_dict["s3"]["endpoint_url"],
-            bucket_name=auth_dict["s3"]["bucket_name"],
+            aws_access_key_id=auth_dict[peer_id]["s3"]["aws_access_key_id"],
+            aws_secret_access_key=auth_dict[peer_id]["s3"]["aws_secret_access_key"],
+            endpoint_url=auth_dict[peer_id]["s3"]["endpoint_url"],
         )
+        bucket = s3.Bucket(auth_dict[peer_id]["s3"]["bucket_name"])
 
         try:
-            obj = s3.Object(content_cid)
+            obj = bucket.Object(content_cid)  # access Object from the Bucket
             data = obj.get()["Body"].read()
             return data
         except Exception as e:
             log_message(f"Error: Unable to get data from S3: {e}")
+            return None
+
+    elif "http_web_server" in auth_dict[peer_id]:
+        http_web_server_endpoint = auth_dict[peer_id]["http_web_server"]["endpoint"]
+        response = requests.get(f"{http_web_server_endpoint}/{content_cid}")
+
+        if response.status_code == 200:
+            data = response.content
+            return data
+        else:
+            log_message(
+                f"Error: Unable to get data from HTTP web server: {response.status_code}"
+            )
             return None
 
 
@@ -53,11 +67,16 @@ def get_data_from_filecoin(
     }
 
     auth_dict = {
+        "12D3KooWQY8k3XoH76BPPPXsrP5BWzTHpfC78u9aHS5FdTx2EXKZ": {
+            "http_web_server": {
+                "endpoint": "http://localhost:50000",
+            }
+        },
         "12D3KooWQY8k3XoH76BPPPXsrP5BWzTHpfC78u9aHS5FdTx2EXKF8": {
             "http_web_server": {
-                "endpoint": "http://localhost:5000",
+                "endpoint": "http://localhost2:50000",
             }
-        }
+        },
     }
 
     # Find storage providers that are not in the storage_providers_ids_set
@@ -81,7 +100,9 @@ def get_data_from_filecoin(
         log_message(
             f"Trying Storage Provider ID: {storage_provider_id} found via cid.contact API"
         )
-        provider_data = request_data_from_resource(auth_dict, piece_cid, content_cid)
+        provider_data = request_data_from_resource(
+            auth_dict, storage_provider_id, piece_cid, content_cid
+        )
 
         if provider_data:
             return provider_data
@@ -125,13 +146,13 @@ def find_storage_providers_for_cid(cid: str) -> set:
 
 
 def check_filecoin_for_data(
-    cid: str,
+    content_cid: str,
     piece_cid,
 ) -> bytes:
-    storage_providers_ids = find_storage_providers_for_cid(cid)
+    storage_providers_ids = find_storage_providers_for_cid(content_cid)
 
     if len(storage_providers_ids) > 0:
-        return get_data_from_filecoin(cid, piece_cid, storage_providers_ids)
+        return get_data_from_filecoin(content_cid, piece_cid, storage_providers_ids)
     else:
         log_message("No storage providers found for CID")
         return None
@@ -139,15 +160,15 @@ def check_filecoin_for_data(
 
 def get_data(content_cid: str, piece_cid: str) -> bytes:
     # Check the hot layer for the data
-    log_message("Checking hot layer (S3) for data")
+    # log_message("Checking hot layer (S3) for data")
 
-    data = request_data_from_resource(
-        auth_dict=MY_S3_AUTH, piece_cid=piece_cid, content_cid=content_cid
-    )
-    if data:
-        log_message("Got data from S3")
-        return data
-    log_message("Unable to get data from S3")
+    # data = request_data_from_resource(
+    #     auth_dict=MY_S3_AUTH, piece_cid=piece_cid, content_cid=content_cid
+    # )
+    # if data:
+    #     log_message("Got data from S3")
+    #     return data
+    # log_message("Unable to get data from S3")
 
     # Check IPFS for the data
     log_message("Checking warm layer (IPFS) for data")
