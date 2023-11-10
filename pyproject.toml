@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "code"
+version = "0.1.0"
+description = "A project containing all things related to one-off python related scripts, modules and classes on my local machine"
+authors = ["Seth Docherty <sddocherty@gmail.com>"]
+readme = "README.md"
+repository = "https://github.com/sethdocherty/local_dev"
+license = "GNU General Public License"
+packages = []
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.12"
+black = "==23.3.0" # formatting
+boto3 = "==1.26.160"
+browser-cookie3 = "==0.19.1"
+fiona = "==1.9.4.post1"
+flake8 = "==6.0.0" # for linting
+flask = "==2.3.2"
+flask-cors = "==3.0.10"
+folium = "==0.14.0"
+geopandas = "==0.13.2"
+matplotlib = "==3.7.1"
+numpy = "==1.25.0"
+mapclassify = "==2.5.0" # Used for geoDataFrame.explore()
+pandas = "==2.0.2"
+planetary-computer = "==0.5.1"
+pre-commit = "==3.3.3" # Used for pre-commit hooks
+pyproj = "==3.6.0"
+pystac-client = "==0.7.1"
+python-dotenv = "==1.0.0" # Used for .env file
+requests = "==2.31.0"
+rich = "==13.4.2"
+rtree = "==1.0.1"
+scipy = "==1.10.1" # KDtree
+shapely = "==2.0.1"
+ipfs-api = "==0.2.3"
+ipykernel = "^6.21.1" # Package provides the required kernal to run jupyter notebooks
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
