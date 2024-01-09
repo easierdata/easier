@@ -37,6 +37,7 @@ ipfs-api = "==0.2.3"
 ipykernel = "^6.21.1" # Package provides the required kernal to run jupyter notebooks
 ruff = "^0.1.5"
 isort = "^5.12.0"
+ipywidgets = "^8.1.1"
 
 [tool.ruff]
 # The directories to consider/allow import relative to the project root directory.
