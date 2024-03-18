@@ -77,7 +77,7 @@ Currently, there is a performance hit when multiple sectors are accessed when re
 
 Before making a Filecoin deal, the data will need to be serialized into a [“Content-Addressable aRchive”](https://ipld.io/specs/transport/car/) (.car) file, which is in raw bytes format. This .car file represents a [Filecoin Piece](https://spec.filecoin.io/systems/filecoin_files/piece/) which is the main unit of negotiation for data that users store on the Filecoin network.
 
-We will use Singularity to pack data into .CAR files. See the [Singularity Docs](https://github.com/tech-greedy/singularity/blob/main/getting-started.md) for more info. 
+We will use Singularity to pack data into .CAR files. See the [Singularity Docs](https://github.com/tech-greedy/singularity/blob/main/getting-started.md) for more info.
 [Example Python Notebook to pack CAR files](https://github.com/easierdata/easier/blob/main/code/Pynotebooks/Singularity_CARGenerator.ipynb)
 
 ### Distribute .CAR files to storage providers
