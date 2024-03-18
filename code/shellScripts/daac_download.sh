@@ -1,4 +1,4 @@
-#setting up following  
+#setting up following
 ## https://git.earthdata.nasa.gov/projects/LPDUR/repos/daac_data_download_python/browse
 datestr=$1
 mkdir -p ./data/$datestr

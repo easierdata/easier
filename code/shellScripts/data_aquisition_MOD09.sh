@@ -5,7 +5,7 @@ output_dir=""
 dataset="MOD09"
 #echo "dry run $token"
 #for i in {1..361..8}
-for i in {1..366} 
+for i in {1..366}
 do
     target=$(printf %03d $i)
     echo "$target"
