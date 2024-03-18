@@ -10,11 +10,9 @@ packages = []
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"
-black = "==23.3.0" # formatting
 boto3 = "==1.26.160"
 browser-cookie3 = "==0.19.1"
 fiona = "==1.9.4.post1"
-flake8 = "==6.0.0" # for linting
 flask = "==2.3.2"
 flask-cors = "==3.0.10"
 folium = "==0.14.0"
@@ -24,7 +22,6 @@ numpy = "==1.25.0"
 mapclassify = "==2.5.0" # Used for geoDataFrame.explore()
 pandas = "==2.0.2"
 planetary-computer = "==0.5.1"
-pre-commit = "==3.3.3" # Used for pre-commit hooks
 pyproj = "==3.6.0"
 pystac-client = "==0.7.1"
 python-dotenv = "==1.0.0" # Used for .env file
@@ -35,9 +32,15 @@ scipy = "==1.10.1" # KDtree
 shapely = "==2.0.1"
 ipfs-api = "==0.2.3"
 ipykernel = "^6.21.1" # Package provides the required kernal to run jupyter notebooks
+
+[tool.poetry.group.dev.dependencies]
+black = "==23.3.0" # formatting
 ruff = "^0.1.5"
 isort = "^5.12.0"
-ipywidgets = "^8.1.1"
+#flake8 = "==6.0.0" # for linting
+pre-commit = "==3.3.3" # Used for pre-commit hooks
+mypy = "^1.9.0"
+
 
 [tool.ruff]
 # The directories to consider/allow import relative to the project root directory.
