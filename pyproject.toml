@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "code"
 version = "0.1.0"
-description = "A project containing all things related to one-off python related scripts, modules and classes on my local machine"
-authors = ["Seth Docherty <sddocherty@gmail.com>"]
+description = "EASIER is our sandbox env for developing and testing all things Dweb."
+authors = ["Seth Docherty <sddocherty@gmail.com>", "Zheng Liu <zliu1208@umd.edu>", "Matthew Nanas <mnanas@umd.edu>"]
 readme = "README.md"
-repository = "https://github.com/sethdocherty/local_dev"
-license = "GNU General Public License"
+repository = "https://github.com/easierdata/easier"
+license = "MIT License"
 packages = []
 
 [tool.poetry.dependencies]
