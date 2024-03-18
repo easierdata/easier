@@ -32,6 +32,7 @@ scipy = "==1.10.1" # KDtree
 shapely = "==2.0.1"
 ipfs-api = "==0.2.3"
 ipykernel = "^6.21.1" # Package provides the required kernal to run jupyter notebooks
+ipywidgets = "^8.1.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "==23.3.0" # formatting
