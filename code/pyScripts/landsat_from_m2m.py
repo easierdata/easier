@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # =============================================================================
 #  USGS/EROS Inventory Service Example
 #  Description: Download Landsat Collection 2 files
@@ -7,17 +8,19 @@
 #         required argument s refers to the txt file for scenes id
 # =============================================================================
 
-import json
-import requests
-import sys
-import time
 import argparse
-import re
-import threading
 import datetime
+import json
 import os
+import re
+import sys
 import tarfile
+import threading
+import time
+from pathlib import Path
 from urllib.parse import urlparse
+
+import requests
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -39,64 +42,88 @@ threads = []
 
 
 # Send http request
-def sendRequest(url, data, apiKey=None, exitIfNoResponse=True):
+def send_request(url, data, api_key=None, exit_if_no_response=True):
     json_data = json.dumps(data)
 
-    if apiKey is None:
-        response = requests.post(url, json_data)
+    if api_key is None:
+        response = requests.post(url, json_data, timeout=5)
     else:
-        headers = {"X-Auth-Token": apiKey}
-        response = requests.post(url, json_data, headers=headers)
+        headers = {"X-Auth-Token": api_key}
+        response = requests.post(url, json_data, headers=headers, timeout=30)
 
-    try:
-        httpStatusCode = response.status_code
-        if response is None:
-            print("No output from service")
-            if exitIfNoResponse:
-                sys.exit()
-            else:
-                return False
-        output = json.loads(response.text)
-        if output["errorCode"] is not None:
-            print(output["errorCode"], "- ", output["errorMessage"])
-            if exitIfNoResponse:
-                sys.exit()
-            else:
-                return False
-        if httpStatusCode == 404:
-            print("404 Not Found")
-            if exitIfNoResponse:
-                sys.exit()
-            else:
-                return False
-        elif httpStatusCode == 401:
-            print("401 Unauthorized")
-            if exitIfNoResponse:
-                sys.exit()
-            else:
-                return False
-        elif httpStatusCode == 400:
-            print("Error Code", httpStatusCode)
-            if exitIfNoResponse:
-                sys.exit()
-            else:
-                return False
-    except Exception as e:
-        response.close()
-        print(e)
-        if exitIfNoResponse:
-            sys.exit()
-        else:
-            return False
+    output = handle_response(response, exit_if_no_response)
     response.close()
 
     return output["data"]
 
 
+def handle_response(response, exit_if_no_response):
+    """
+    Handle the response from the service.
+
+    Args:
+        response: The HTTP response object.
+        exit_if_no_response: A boolean indicating whether to exit if there is no response.
+
+    Returns:
+        The response data if successful, False otherwise.
+    """
+    http_status_code = response.status_code
+
+    if response is None:
+        print("No output from service")
+        if exit_if_no_response:
+            sys.exit()
+        else:
+            return False
+
+    output = json.loads(response.text)
+
+    if output["errorCode"] is not None:
+        print(output["errorCode"], "- ", output["errorMessage"])
+        if exit_if_no_response:
+            sys.exit()
+        else:
+            return False
+
+    if http_status_code == 404:
+        print("404 Not Found")
+        if exit_if_no_response:
+            sys.exit()
+        else:
+            return False
+
+    if http_status_code == 401:
+        print("401 Unauthorized")
+        if exit_if_no_response:
+            sys.exit()
+        else:
+            return False
+
+    if http_status_code == 400:
+        handle_400_error(http_status_code, exit_if_no_response)
+        return False
+
+    return output
+
+
+def handle_400_error(http_status_code, exit_if_no_response):
+    """
+    Handle the 400 error code.
+
+    Args:
+        http_status_code: The HTTP status code.
+        exit_if_no_response: A boolean indicating whether to exit if there is no response.
+    """
+    print("Error Code", http_status_code)
+    if exit_if_no_response:
+        sys.exit()
+
+
 def downloadFile(url):
     sema.acquire()
     try:
-        response = requests.get(url, stream=True)
+        response = requests.get(url, stream=True, timeout=5)
         disposition = response.headers["content-disposition"]
         filename = re.findall("filename=(.+)", disposition)[0].strip('"')
         print(f"Downloading {filename} ...\n")
@@ -104,12 +131,12 @@ def downloadFile(url):
         ac_date = filename.split("_")[3]
         if path != "" and path[-1] != "/":
             filename = "/" + filename
-        open(path + filename, "wb").write(response.content)
+        Path.open(path + filename, "wb", encoding="utf-8").write(response.content)
 
         tar = tarfile.open(path + filename)
         tar.extractall(path + "/" + ac_date + "/" + product_id)
         tar.close()
-        os.remove(path + filename)
+        Path.unlink(path + filename)
         print(f"Downloaded and extracted {filename}\n")
         sema.release()
     except Exception:
@@ -118,10 +145,10 @@ def downloadFile(url):
         # runDownload(threads, url)
 
 
-def runDownload(threads, url):
-    thread = threading.Thread(target=downloadFile, args=(url,))
-    threads.append(thread)
-    thread.start()
+def runDownload(threads_list, url):
+    download_thread = threading.Thread(target=downloadFile, args=(url,))
+    threads_list.append(download_thread)
+    download_thread.start()
 
 
 if __name__ == "__main__":
@@ -151,11 +178,11 @@ if __name__ == "__main__":
 
     # Login
     payload = {"username": username, "password": password}
-    apiKey = sendRequest(serviceUrl + "login", payload)
+    apiKey = send_request(serviceUrl + "login", payload)
     print("API Key: " + apiKey + "\n")
 
     # Read scenes
-    f = open(scenesFile, "r")
+    f = Path.open(scenesFile, "r", encoding="utf-8")
     lines = f.readlines()
     f.close()
     header = lines[0].strip()
@@ -170,8 +197,7 @@ if __name__ == "__main__":
     entityIds = []
 
     lines.pop(0)
-    for line in lines:
-        entityIds.append(line.strip())
+    entityIds = [line.strip() for line in lines]
 
     # Search scenes
     # If you don't have a scenes text file that you can use scene-search to identify scenes you're interested in
@@ -183,7 +209,7 @@ if __name__ == "__main__":
     #             'sceneFilter' : {} # scene filter
     #           }
 
-    # results = sendRequest(serviceUrl + "scene-search", payload, apiKey)
+    # results = send_request(serviceUrl + "scene-search", payload, apiKey)
     # for result in results:
     #     entityIds.append(result['entityId'])
 
@@ -197,25 +223,25 @@ if __name__ == "__main__":
     }
 
     print("Adding scenes to list...\n")
-    count = sendRequest(serviceUrl + "scene-list-add", payload, apiKey)
+    count = send_request(serviceUrl + "scene-list-add", payload, apiKey)
     print("Added", count, "scenes\n")
 
     # Get download options
     payload = {"listId": listId, "datasetName": datasetName}
 
     print("Getting product download options...\n")
-    products = sendRequest(serviceUrl + "download-options", payload, apiKey)
+    products = send_request(serviceUrl + "download-options", payload, apiKey)
     print("Got product download options\n")
 
     # Select products
     downloads = []
     if filetype == "bundle":
         # select bundle files
-        for product in products:
-            if product["bulkAvailable"]:
-                downloads.append(
-                    {"entityId": product["entityId"], "productId": product["id"]}
-                )
+        downloads = [
+            {"entityId": product["entityId"], "productId": product["id"]}
+            for product in products
+            if product["bulkAvailable"]
+        ]
     elif filetype == "band":
         # select band files
         for product in products:
@@ -254,13 +280,13 @@ if __name__ == "__main__":
 
     # Remove the list
     payload = {"listId": listId}
-    sendRequest(serviceUrl + "scene-list-remove", payload, apiKey)
+    send_request(serviceUrl + "scene-list-remove", payload, apiKey)
 
     # Send download-request
     payLoad = {"downloads": downloads, "label": label, "returnAvailable": True}
 
     print("Sending download request ...\n")
-    results = sendRequest(serviceUrl + "download-request", payLoad, apiKey)
+    results = send_request(serviceUrl + "download-request", payLoad, apiKey)
     print("Done sending download request\n")
 
     for result in results["availableDownloads"]:
@@ -272,13 +298,14 @@ if __name__ == "__main__":
     preparingDownloadCount = len(results["preparingDownloads"])
     preparingDownloadIds = []
     if preparingDownloadCount > 0:
-        for result in results["preparingDownloads"]:
-            preparingDownloadIds.append(result["downloadId"])
+        preparingDownloadIds = [
+            result["downloadId"] for result in results["preparingDownloads"]
+        ]
 
         payload = {"label": label}
         # Retrieve download urls
         print("Retrieving download urls...\n")
-        results = sendRequest(serviceUrl + "download-retrieve", payload, apiKey, False)
+        results = send_request(serviceUrl + "download-retrieve", payload, apiKey, False)
         if results:
             for result in results["available"]:
                 if result["downloadId"] in preparingDownloadIds:
@@ -298,7 +325,7 @@ if __name__ == "__main__":
                 f"{len(preparingDownloadIds)} downloads are not available yet. Waiting for 30s to retrieve again\n"
             )
             time.sleep(30)
-            results = sendRequest(
+            results = send_request(
                 serviceUrl + "download-retrieve", payload, apiKey, False
             )
             if results:
@@ -311,7 +338,7 @@ if __name__ == "__main__":
     print("\nGot download urls for all downloads\n")
     # Logout
     endpoint = "logout"
-    if sendRequest(serviceUrl + endpoint, None, apiKey) is None:
+    if send_request(serviceUrl + endpoint, None, apiKey) is None:
         print("Logged Out\n")
     else:
         print("Logout Failed\n")

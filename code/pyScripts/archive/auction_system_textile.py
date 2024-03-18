@@ -1,9 +1,11 @@
-import requests
-import pandas as pd
-import time
+# -*- coding: utf-8 -*-
 import json
 import os
+import time
 from datetime import datetime, timedelta
+
+import pandas as pd
+import requests
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -35,8 +37,8 @@ for idx, row in df.iterrows():
         payload_cid = str(row["payload_cid"])
         piece_cid = str(row["piece_cid"])
         piece_size = str(row["piece_size"])
-        next = datetime.now() + timedelta(days=10)
-        date = str(next.isoformat(timespec="seconds")) + "-04:00"
+        next_timeframe = datetime.now() + timedelta(days=10)
+        date = str(next_timeframe.isoformat(timespec="seconds")) + "-04:00"
         body = {
             "payloadCid": payload_cid,
             "pieceCid": piece_cid,
@@ -51,6 +53,7 @@ for idx, row in df.iterrows():
             "https://broker.staging.textile.dev/auction-data",
             headers=headers,
             data=json.dumps(body),
+            timeout=10,
         )
         print(response)
         try:
