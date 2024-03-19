@@ -69,13 +69,6 @@ exclude = '''
 # Note, if using pre-commit, ensure that ruff is placed before other formatting tool
 # hooks as the autofix behavior can output code changes that require reformatting.
 fix = true
-lint.unfixable = []
-
-# A list of rule codes or prefixes to enable
-# Vist link to get more info on rules: https://beta.ruff.rs/docs/rules/
-lint.ignore = ["E501", "PTH", "C", "INT"]
-lint.select = ["B","E","F","W","B9", "I", "Q", "ISC", "INP", "PTH", "FLY", "PERF", "RUF"]
-
 
 # Enumerate all fixed violations and the associated violation id.
 show-fixes = true
@@ -99,9 +92,26 @@ exclude = [
     "dist",
     "venv",
 ]
-
-# Same as Black.
-line-length = 88
+[tool.ruff.lint]
+# A list of rule codes or prefixes to enable
+# Vist link to get more info on rules: https://beta.ruff.rs/docs/rules/
+ignore = ["E501", "PTH", "C", "INT"]
+select = [
+    "B",
+    "E",
+    "F",
+    "W",
+    "B9",
+    "I",
+    "Q",
+    "ISC",
+    "INP",
+    "PTH",
+    "FLY",
+    "PERF",
+    "RUF",
+]
+unfixable = []
 
 [tool.mypy]
 # Vist link to get more info on rules: https://mypy.readthedocs.io/en/stable/config_file.html
