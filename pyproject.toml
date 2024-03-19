@@ -2,7 +2,11 @@
 name = "code"
 version = "0.1.0"
 description = "EASIER is our sandbox env for developing and testing all things Dweb."
-authors = ["Seth Docherty <sddocherty@gmail.com>", "Zheng Liu <zliu1208@umd.edu>", "Matthew Nanas <mnanas@umd.edu>"]
+authors = [
+    "Seth Docherty <sddocherty@gmail.com>",
+    "Zheng Liu <zliu1208@umd.edu>",
+    "Matthew Nanas <mnanas@umd.edu>",
+]
 readme = "README.md"
 repository = "https://github.com/easierdata/easier"
 license = "MIT License"
@@ -19,28 +23,28 @@ folium = "==0.14.0"
 geopandas = "==0.13.2"
 matplotlib = "==3.7.1"
 numpy = "==1.25.0"
-mapclassify = "==2.5.0" # Used for geoDataFrame.explore()
+mapclassify = "==2.5.0"        # Used for geoDataFrame.explore()
 pandas = "==2.0.2"
 planetary-computer = "==0.5.1"
 pyproj = "==3.6.0"
 pystac-client = "==0.7.1"
-python-dotenv = "==1.0.0" # Used for .env file
+python-dotenv = "==1.0.0"      # Used for .env file
 requests = "==2.31.0"
 rich = "==13.4.2"
 rtree = "==1.0.1"
-scipy = "==1.10.1" # KDtree
+scipy = "==1.10.1"             # KDtree
 shapely = "==2.0.1"
 ipfs-api = "==0.2.3"
-ipykernel = "^6.21.1" # Package provides the required kernal to run jupyter notebooks
+ipykernel = "^6.21.1"          # Package provides the required kernal to run jupyter notebooks
 ipywidgets = "^8.1.2"
 
 [tool.poetry.group.dev.dependencies]
-black = "==23.3.0" # formatting
+black = "==23.3.0"     # formatting
 ruff = "^0.1.5"
 isort = "^5.12.0"
-#flake8 = "==6.0.0" # for linting
 pre-commit = "==3.3.3" # Used for pre-commit hooks
 mypy = "^1.9.0"
+# flake8 = "==6.0.0"     # for linting
 
 [tool.black]
 line-length = 88
@@ -62,6 +66,9 @@ exclude = '''
 '''
 
 [tool.ruff]
+# Same as Black.
+line-length = 88
+
 # The directories to consider/allow import relative to the project root directory.
 #src = ["code", "data", "output"]
 
@@ -120,15 +127,14 @@ select = [
 ]
 unfixable = []
 
+
 [tool.mypy]
 # Vist link to get more info on rules: https://mypy.readthedocs.io/en/stable/config_file.html
-exclude = [
-    '.venv',
-]
+exclude = ['.venv']
 
-pretty = "True"
-show_column_numbers = "True"
-show_error_context = "True"
+pretty = true
+show_column_numbers = true
+show_error_context = true
 
 [build-system]
 requires = ["poetry-core"]
