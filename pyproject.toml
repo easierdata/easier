@@ -37,6 +37,9 @@ shapely = "==2.0.1"
 ipfs-api = "==0.2.3"
 ipykernel = "^6.21.1"          # Package provides the required kernal to run jupyter notebooks
 ipywidgets = "^8.1.2"
+beautifulsoup4 = "^4.12.3"
+aiohttp = "^3.9.3"
+aiofiles = "^23.2.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "==23.3.0"     # formatting
