@@ -1,6 +1,70 @@
 {
+    //.....................
+    // GENERAL IDE SETTINGS
+    //.....................
+    "diffEditor.codeLens": false,
+    "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
     "editor.formatOnSave": true,
-    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.minimap.renderCharacters": false,
+    "editor.rulers": [
+        88
+    ],
+    "editor.wordBasedSuggestions": "off",
+    "files.autoSave": "off",
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "search.showLineNumbers": true,
+    //.......................................
+    // Python and related extension settings
+    //.......................................
+    "python.analysis.autoSearchPaths": true,
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.completeFunctionParens": true,
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportUnboundVariable": "none",
+        "reportImplicitStringConcatenation": "warning"
+    },
+    "python.analysis.gotoDefinitionInStringLiteral": true,
+    "python.analysis.inlayHints.callArgumentNames": "all",
+    "python.analysis.inlayHints.functionReturnTypes": true,
+    "python.analysis.inlayHints.variableTypes": true,
+    "python.terminal.activateEnvInCurrentTerminal": true,
     "python.terminal.activateEnvironment": true,
-    "python.terminal.activateEnvInCurrentTerminal": true
+    "notebook.codeActionsOnSave": {
+        "notebook.source.fixAll": "explicit",
+        "notebook.source.organizeImports": "explicit"
+    },
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+    // Package root source path to reference for the 'Run Python File'
+    "terminal.integrated.env.linux": {
+        "PYTHONPATH": "${env:PYTHONPATH}:${workspaceFolder}/.venv/Scripts/python.exe"
+    },
+    "terminal.integrated.env.osx": {
+        "PYTHONPATH": "${env:PYTHONPATH}:${workspaceFolder}/.venv/Scripts/python.exe"
+    },
+    "terminal.integrated.env.windows": {
+        "PYTHONPATH": "${env:PYTHONPATH};${workspaceFolder}\\.venv\\Scripts\\python.exe"
+    },
+    "notebook.formatOnCellExecution": true,
+    "notebook.formatOnSave.enabled": true,
+    "notebook.lineNumbers": "on",
+    "notebook.outline.showCodeCells": true,
+    "jupyter.showVariableViewWhenDebugging": true,
+    "isort.check": true,
+    "ruff.organizeImports": false,
+    "terminal.integrated.copyOnSelection": true,
+    "testing.automaticallyOpenPeekView": "failureAnywhere",
+    "mypy.enabled": false,
+    "mypy.debugLogging": false,
+    "mypy.runUsingActiveInterpreter": false,
+    //.......................................
+    // Misc extension settings
+    //.......................................
+    "evenBetterToml.formatter.arrayAutoCollapse": true,
+    "evenBetterToml.formatter.arrayTrailingComma": true,
+    "evenBetterToml.schema.links": true,
+    "evenBetterToml.formatter.alignComments": true,
+    "evenBetterToml.formatter.alignEntries": true,
 }
