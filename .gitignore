@@ -9,6 +9,7 @@ token.json
 venv
 *checkpoint.ipynb
 .ipynb_checkpoints
+__pycache__
 
 ### Misc
 getting_started_command.sh
