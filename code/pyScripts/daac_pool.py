@@ -1,14 +1,15 @@
-import os
-import requests
-from multiprocessing.pool import ThreadPool
-from pathlib import Path
-from netrc import netrc
-import pandas as pd
+# -*- coding: utf-8 -*-
 import argparse
+import datetime
 import warnings
+from multiprocessing.pool import ThreadPool
+from netrc import netrc
+from pathlib import Path
+
+import pandas as pd
+import requests
 
 warnings.filterwarnings("ignore")
-import datetime
 
 profiles = {
     "1B": ["GEDI01_B.002", "../../data/gedi/inventory_GEDI01_B.002_latest.csv", 220000],
@@ -25,7 +26,7 @@ p = args.profile
 local_cache_root = "../../../daac_data_download_python/data/"
 product = profiles[p][0]  # ["GEDI01_B.002","GEDI02_A.002","GEDI02_B.002"]
 urs = "urs.earthdata.nasa.gov"  # Address to call for authentication
-netrcDir = os.path.expanduser("~/.netrc")
+netrcDir = Path.expanduser("~/.netrc")
 print(product)
 
 
@@ -45,6 +46,7 @@ def download_file(url):
             url.strip(),
             verify=False,
             stream=True,
+            timeout=10,
             auth=(
                 netrc(netrcDir).authenticators(urs)[0],
                 netrc(netrcDir).authenticators(urs)[2],
@@ -59,7 +61,7 @@ def download_file(url):
             else:
                 response.raw.decode_content = True
                 content = response.raw
-                with open(saveName, "wb") as d:
+                with Path.open(saveName, "wb", encoding="utf-8") as d:
                     while True:
                         chunk = content.read(16 * 1024)
                         if not chunk:

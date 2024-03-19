@@ -13,5 +13,5 @@ upload_file() {
 }
 
 # Usage: sh ./upload_to_s3_with_CID_key <filename> <bucket>
-# Example: sh ./upload_to_s3_with_CID_key.sh ../../data/landsat/ls9/LC09_L1TP_004069_20220628_20220629_02_T1/LC09_L1TP_004069_20220628_20220629_02_T1_B1.TIF landsat-warm-layer 
+# Example: sh ./upload_to_s3_with_CID_key.sh ../../data/landsat/ls9/LC09_L1TP_004069_20220628_20220629_02_T1/LC09_L1TP_004069_20220628_20220629_02_T1_B1.TIF landsat-warm-layer
 upload_file $1 $2

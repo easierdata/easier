@@ -5,7 +5,7 @@ start=$(date -d $start +%Y-%m-%d)
 end=$(date -d $end +%Y-%m-%d)
 while [ $start != $end ]
 do
-    echo 
+    echo
     startdate=$(date -d $start +%Y.%m.%d)
     #do something
     sh ../easier/code/shellScripts/daac_download.sh $startdate
