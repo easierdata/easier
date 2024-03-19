@@ -74,7 +74,7 @@ fix = true
 show-fixes = true
 
 # Common file and directory settings to include/exclude.
-include = ["*.py", "*.pyi", "**/pyproject.toml", "*.ipynb"]
+include = ["*.py", "*.pyi", "*.ipynb"]
 exclude = [
     "__pycache__",
     "__pypackages__",
@@ -92,6 +92,13 @@ exclude = [
     "dist",
     "venv",
 ]
+extend-exclude = [
+    ".vscode/*.json",
+    "**/Archive/*.py",
+    "**/Archive/*.ipynb",
+    "**/validate_cloud_optimized_geotiff.py",
+]
+
 [tool.ruff.lint]
 # A list of rule codes or prefixes to enable
 # Vist link to get more info on rules: https://beta.ruff.rs/docs/rules/
