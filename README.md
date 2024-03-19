@@ -5,6 +5,7 @@
 - [Installation](#installation)
   - [Clone Repo and create Python Virtual Environment](#clone-repo-and-create-python-virtual-environment)
   - [Installing Static Code Analysis Tools](#installing-static-code-analysis-tools)
+  - [VSCode Presets](#vscode-presets)
   - [Install Singularity](#install-singularity)
   - [Install IPFS](#install-ipfs)
   - [Install Lotus](#install-lotus)
@@ -48,19 +49,27 @@ This project uses [Poetry](https://python-poetry.org/) for dependency management
    ```shell
    curl -sSL https://install.python-poetry.org | python3 -
    ```
+
 2. Clone the repository:
 
    ```shell
    git clone https://github.com/easierdata/easier.git
    cd easier
    ```
+
 3. Install the dependencies:
 
    ```shell
    poetry install
    ```
 
-## Installing Static Code Analysis Tools
+### VSCode Presets
+
+Included in the repo root is a `.vscode` folder that contains VSCode files with predefined settings. Recommended VSCode extensions are also included that can be installed for a more tailored development experience for this project. When this workspace is opened for the first time, VSCode will prompt to install the recommended extensions. You can also review this list through **Extensions -> Show Recommended Extensions command**.
+
+> Note: Workspace settings override user settings.
+
+### Installing Static Code Analysis Tools
 
 The linters **[Black](https://github.com/psf/black)**, **[Mypy](https://github.com/python/mypy)** and **[Ruff](https://github.com/astral-sh/ruff)** have been integrated into a [pre-commit](https://pre-commit.com/#2-add-a-pre-commit-configuration) configuration file (file named `.pre-commit-config.yaml`) as to ensure that no bugs or issues appear in your code before pushing changes to your repo. To install the pre-commit git hooks:
 
@@ -76,6 +85,8 @@ The linters **[Black](https://github.com/psf/black)**, **[Mypy](https://github.c
 ```shell
 pre-commit run --all-files
 ```
+
+> **Note**: mypy is disabled by default. To enable, uncomment the `mypy` section in the `.pre-commit-config.yaml` file and re-run the `pre-commit install` command. Additionally, set the `mypy` properties found in .`vscode/settings.json` to `true` to enable the mypy extension in VSCode.
 
 ### Adding more pre-commit plugins
 
@@ -154,7 +165,7 @@ If you are working with a SP, you can stop here. If you are not working with a S
 
 ## Make Filecoin Deal
 
-### Use Singularity to make Filecoin deal.
+### Use Singularity to make Filecoin deal
 
 We'll point you to the singularity docs for this step. See [this section](https://github.com/tech-greedy/singularity/blob/main/getting-started.md#deal-making) of the docs for more info on how to create a deal.
 
