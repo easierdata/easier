@@ -1,15 +1,16 @@
-import os
-from multiprocessing.pool import ThreadPool
-from pathlib import Path
-from netrc import netrc
-import pandas as pd
+# -*- coding: utf-8 -*-
 import argparse
-import warnings
-
-warnings.filterwarnings("ignore")
-from http.cookiejar import CookieJar
 import datetime
 import urllib.request as urllib
+import warnings
+from http.cookiejar import CookieJar
+from multiprocessing.pool import ThreadPool
+from netrc import netrc
+from pathlib import Path
+
+import pandas as pd
+
+warnings.filterwarnings("ignore")
 
 profiles = {
     "3": [
@@ -43,7 +44,7 @@ p = args.profile
 local_cache_root = "../../../daac_data_download_python/data/"
 product = profiles[p][0]  # ["GEDI01_B.002","GEDI02_A.002","GEDI02_B.002"]
 urs = "urs.earthdata.nasa.gov"  # Address to call for authentication
-netrcDir = os.path.expanduser("~/.netrc")
+netrcDir = Path.expanduser("~/.netrc")
 print(product)
 # The user credentials that will be used to authenticate access to the data
 
@@ -97,7 +98,7 @@ def download_file(url):
             )
         else:
             content = response.read()
-            with open(saveName, "wb") as d:
+            with Path.open(saveName, "wb", encoding="utf-8") as d:
                 d.write(content)
             print("saved", saveName)
     except ConnectionResetError as m:

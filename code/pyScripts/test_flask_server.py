@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import requests
 
 # URLs to test
@@ -8,7 +9,7 @@ urls = [
 ]
 
 for url in urls:
-    response = requests.get(url)
+    response = requests.get(url, timeout=5)  # Added timeout argument
     print(
         f"GET {url} returned status code {response.status_code} and content:\n{response.text}\n"
     )

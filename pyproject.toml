@@ -1,0 +1,141 @@
+[tool.poetry]
+name = "code"
+version = "0.1.0"
+description = "EASIER is our sandbox env for developing and testing all things Dweb."
+authors = [
+    "Seth Docherty <sddocherty@gmail.com>",
+    "Zheng Liu <zliu1208@umd.edu>",
+    "Matthew Nanas <mnanas@umd.edu>",
+]
+readme = "README.md"
+repository = "https://github.com/easierdata/easier"
+license = "MIT License"
+packages = []
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.12"
+boto3 = "==1.26.160"
+browser-cookie3 = "==0.19.1"
+fiona = "==1.9.4.post1"
+flask = "==2.3.2"
+flask-cors = "==3.0.10"
+folium = "==0.14.0"
+geopandas = "==0.13.2"
+matplotlib = "==3.7.1"
+numpy = "==1.25.0"
+mapclassify = "==2.5.0"        # Used for geoDataFrame.explore()
+pandas = "==2.0.2"
+planetary-computer = "==0.5.1"
+pyproj = "==3.6.0"
+pystac-client = "==0.7.1"
+python-dotenv = "==1.0.0"      # Used for .env file
+requests = "==2.31.0"
+rich = "==13.4.2"
+rtree = "==1.0.1"
+scipy = "==1.10.1"             # KDtree
+shapely = "==2.0.1"
+ipfs-api = "==0.2.3"
+ipykernel = "^6.21.1"          # Package provides the required kernal to run jupyter notebooks
+ipywidgets = "^8.1.2"
+
+[tool.poetry.group.dev.dependencies]
+black = "==23.3.0"     # formatting
+ruff = "^0.1.5"
+isort = "^5.12.0"
+pre-commit = "==3.3.3" # Used for pre-commit hooks
+mypy = "^1.9.0"
+# flake8 = "==6.0.0"     # for linting
+
+[tool.black]
+line-length = 88
+
+include = '''
+(
+    \.pyi?$
+|  \.ipynb$
+)
+'''
+
+exclude = '''
+/(
+	^\.git
+| ^\.mypy_cache
+| __pycache__
+| ^\.venv
+)/
+'''
+
+[tool.ruff]
+# Same as Black.
+line-length = 88
+
+# The directories to consider/allow import relative to the project root directory.
+#src = ["code", "data", "output"]
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+# Note, if using pre-commit, ensure that ruff is placed before other formatting tool
+# hooks as the autofix behavior can output code changes that require reformatting.
+fix = true
+
+# Enumerate all fixed violations and the associated violation id.
+show-fixes = true
+
+# Common file and directory settings to include/exclude.
+include = ["*.py", "*.pyi", "*.ipynb"]
+exclude = [
+    "__pycache__",
+    "__pypackages__",
+    ".direnv",
+    ".eggs",
+    ".git-rewrite",
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".tox",
+    ".venv",
+    "build",
+    "dist",
+    "venv",
+]
+extend-exclude = [
+    ".vscode/*.json",
+    "**/Archive/*.py",
+    "**/Archive/*.ipynb",
+    "**/validate_cloud_optimized_geotiff.py",
+]
+
+[tool.ruff.lint]
+# A list of rule codes or prefixes to enable
+# Vist link to get more info on rules: https://beta.ruff.rs/docs/rules/
+ignore = ["E501", "PTH", "C", "INT"]
+select = [
+    "B",
+    "E",
+    "F",
+    "W",
+    "B9",
+    "I",
+    "Q",
+    "ISC",
+    "INP",
+    "PTH",
+    "FLY",
+    "PERF",
+    "RUF",
+]
+unfixable = []
+
+
+[tool.mypy]
+# Vist link to get more info on rules: https://mypy.readthedocs.io/en/stable/config_file.html
+exclude = ['.venv']
+
+pretty = true
+show_column_numbers = true
+show_error_context = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

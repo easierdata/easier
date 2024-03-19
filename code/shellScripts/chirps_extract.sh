@@ -1,4 +1,4 @@
-# chirps 
+# chirps
 #tifs/netcdf/bils/cogs
 output_dir=""
 
