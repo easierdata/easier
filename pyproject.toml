@@ -49,6 +49,9 @@ pre-commit = "==3.3.3" # Used for pre-commit hooks
 mypy = "^1.9.0"
 # flake8 = "==6.0.0"     # for linting
 
+[tool.poetry.scripts]
+get-gedi-lpdaac = "code.pyScripts.gedi_lpdaac_metadata:main"
+
 [tool.black]
 line-length = 88
 
