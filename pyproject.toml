@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "code"
+name = "easier_tools"
 version = "0.1.0"
 description = "EASIER is our sandbox env for developing and testing all things Dweb."
 authors = [
@@ -50,7 +50,7 @@ mypy = "^1.9.0"
 # flake8 = "==6.0.0"     # for linting
 
 [tool.poetry.scripts]
-get-gedi-lpdaac = "code.pyScripts.gedi_lpdaac_metadata:main"
+get-gedi-lpdaac = "easier_tools.pyScripts.gedi_lpdaac_metadata:main"
 
 [tool.black]
 line-length = 88
