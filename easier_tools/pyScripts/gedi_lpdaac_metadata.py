@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+import argparse
 import asyncio
 import csv
+import textwrap
 import time
 from pathlib import Path
 
@@ -361,6 +363,26 @@ def get_product_links(url: str = "https://e4ftl01.cr.usgs.gov/") -> list[str]:
 
 
 def main() -> None:
+
+    parser = argparse.ArgumentParser(
+        prog="crawl_pages",
+        add_help=True,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description=textwrap.dedent(
+            f"""\
+        Description:
+
+        A crawler that scans through the LPDAAC http endpoint, to extract relevant information on the GEDI mission data products.
+
+        Basic details such as the file name, type, size and url endpoint to download are captured and saved down to {OUTPUT_PATH}. Details on each collection are saved as separate files, prefixed with the collection name, and a summary file containing additional details about each collection.
+
+        NOTE: The script uses asyncio to handle multiple requests concurrently, and the number of concurrent tasks is limited to 15.
+
+        """
+        ),
+    )
+    _ = parser.parse_args()
+
     GEDI_collection = r"https://e4ftl01.cr.usgs.gov/GEDI/"
     collection_links = get_product_links(GEDI_collection)
 
