@@ -8,6 +8,7 @@ from pathlib import Path
 
 import aiohttp
 import requests
+import tqdm
 from bs4 import BeautifulSoup
 
 # global variables
@@ -263,10 +264,10 @@ async def process_page(
     async with sem:  # acquire semaphore
         product_dict = {}
         page_url = base_url + href
-        print(f"Reviewing content on page: {page_url}")
+        # print(f"Reviewing content on page: {page_url}")
         page_response = await fetch_page(session, page_url)
         if page_response is None:
-            print(f"Failed to retrieve content from page: {page_url}")
+            # print(f"Failed to retrieve content from page: {page_url}")
             return product_dict
         for line in page_response.splitlines():
             if product_prefix in line:
@@ -323,21 +324,24 @@ async def crawl_pages(
         tasks = []
         for a_tag in a_tags:
             href = a_tag["href"]
-            # Pass the semaphore to process_page
+            # Pass the semaphore to process_page in batches per the concurrency limit
             tasks.append(process_page(sem, session, base_url, href, product_prefix))
 
-        # Process tasks in chunks of X
-        for i in range(0, len(tasks), sem._value):
+        # Process tasks in chunks of per the concurrency limit
+        print(
+            f"processing {len(tasks)} web pages for the collection: {collection_name}. Hold tight!"
+        )
+        for i in tqdm.tqdm(range(0, len(tasks), sem._value)):
             chunk = tasks[i : i + sem._value]
             chunk_results = await asyncio.gather(*chunk)
             all_results.extend(chunk_results)
-            # await asyncio.sleep(0.11)  # add delay
 
     # Merge all results into a single dictionary
     product_dict = {}
     for result in all_results:
         product_dict.update(result)
     # After all pages have been crawled and processed, export the data to a CSV file
+    print(f"Exporting results for {collection_name} in the directory {OUTPUT_PATH}.")
     save_stats_to_file(product_dict, collection_name, collection_start_time)
     export_to_csv(product_dict, collection_name)
 
