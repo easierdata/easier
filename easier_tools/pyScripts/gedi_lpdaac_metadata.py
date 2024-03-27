@@ -14,7 +14,21 @@ from bs4 import BeautifulSoup
 # global variables
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = REPO_ROOT / "data"
-OUTPUT_PATH = DATA_DIR / "gedi" / "lpdaac-metadata"
+OUTPUT_PATH = DATA_DIR / "gedi" / "metadata"
+
+# The user credentials that will be used to authenticate access to the data
+AUTH_SELECTION = "bearer"  # input("Enter the authentication type (netrc or bearer): ")
+
+# Represents the DAAC data source that will be referenced to parse GEDI data details.
+# It can be either `ornl` or `lp` based
+DAAC_SOURCE = ""
+
+# dictionary to store the mission name and the corresponding DAAC URLs
+GEDI_SOURCES = {
+    "ornl": {"url": "https://daac.ornl.gov/daacdata", "mission": "gedi"},
+    "lp": {"url": "https://e4ftl01.cr.usgs.gov", "mission": "GEDI"},
+}
+
 # Ensure that OUTPUT_PATH exists
 Path.mkdir(OUTPUT_PATH, parents=True, exist_ok=True)
 
@@ -397,19 +411,54 @@ def extract_gedi_details() -> None:
             f"""\
         Description:
 
-        A crawler that scans through the LPDAAC http endpoint, to extract relevant information on the GEDI mission data products.
+        A crawler that scans through the LP.DAAC or ORNL.DAAC http endpoint, to extract relevant information on the GEDI mission data products.
 
         Basic details such as the file name, type, size and url endpoint to download are captured and saved down to {OUTPUT_PATH}. Details on each collection are saved as separate files, prefixed with the collection name, and a summary file containing additional details about each collection.
 
+        Credentials are REQUIRED to access http endpoints. Additional details below regarding authentication types.
+
         NOTE: The script uses asyncio to handle multiple requests concurrently, and the number of concurrent tasks is limited to 15.
+
+        Additional information:
+
+        - The script will prompt you to enter the authentication type and DAAC source to scrape the GEDI product details. The authentication type can be either `netrc` or `token`.
+
+        - Generate a netrc file with the Easiertools poetry script tool by running the following command `poetry run update_netrc_file`
+
+        - You can find more information on generating a token from the Earthdata Login at the following link: https://urs.earthdata.nasa.gov/documentation/for_users/user_token
 
         """
         ),
     )
-    _ = parser.parse_args()
 
-    GEDI_collection = r"https://e4ftl01.cr.usgs.gov/GEDI/"
-    collection_links = get_product_links(GEDI_collection)
+    parser.add_argument(
+        "--auth-type",
+        type=str,
+        default="netrc",
+        required=False,
+        help=r"[netrc | token]     Specify the authentication type to access Earthdata http endpoints.",
+    )
+
+    parser.add_argument(
+        "--daac",
+        type=str,
+        default="lp",
+        required=False,
+        help=r"[ornl | lp]     Specify the DAAC source to scrape the GEDI prodcut details.",
+    )
+
+    args = parser.parse_args()
+
+    # Set the global variables based on the user input
+    global DAAC_SOURCE, AUTH_SELECTION
+
+    DAAC_SOURCE = args.daac
+    AUTH_SELECTION = args.auth_type
+
+    DAAC_URL = GEDI_SOURCES[DAAC_SOURCE]["url"]
+    MISSION_NAME = GEDI_SOURCES[DAAC_SOURCE]["mission"]
+
+    collection_links = get_product_links(f"{DAAC_URL}/{MISSION_NAME}/")
 
     start_time = time.time()
     # Loop through each collection links and prepare to extract the product links
