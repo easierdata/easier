@@ -51,7 +51,7 @@ mypy = "^1.9.0"
 # flake8 = "==6.0.0"     # for linting
 
 [tool.poetry.scripts]
-get-gedi-lpdaac = "easier_tools.pyScripts.gather_gedi_inventory:extract_gedi_details"
+get-gedi-details = "easier_tools.pyScripts.gather_gedi_inventory:extract_gedi_details"
 update-netrc = "easier_tools.utils.update_netrc_file:update_netrc_file"
 
 
