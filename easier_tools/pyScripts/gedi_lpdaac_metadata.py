@@ -97,8 +97,17 @@ def convert_to_gb(file_size_str: str) -> float:
         2.0
     """
     # Get the number and unit from the file size string
-    number = float(file_size_str[:-1])
-    unit = file_size_str[-1]
+    # Check if variable is not a string and convert to float
+    # Default unit is "M"
+    if isinstance(file_size_str, str) and file_size_str[-1].isdigit():
+        number = float(file_size_str)
+        unit = "M"  # Default unit
+    elif isinstance(file_size_str, str):
+        number = float(file_size_str[:-1])
+        unit = file_size_str[-1]
+    else:
+        number = float(file_size_str)
+        unit = "M"  # Default unit
 
     if unit == "M":
         return round((number / 1024), 6)
