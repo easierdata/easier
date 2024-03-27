@@ -3,6 +3,7 @@ name = "easier_tools"
 version = "0.1.0"
 description = "EASIER is our sandbox env for developing and testing all things Dweb."
 authors = [
+    "John Solly <jsolly@pm.me>",
     "Seth Docherty <sddocherty@gmail.com>",
     "Zheng Liu <zliu1208@umd.edu>",
     "Matthew Nanas <mnanas@umd.edu>",
