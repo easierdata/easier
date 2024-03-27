@@ -222,6 +222,47 @@ def save_stats_to_file(
         f.write(f"{'-'*100}\n\n")
 
 
+def get_product_links(url: str) -> list[str] | None:
+    """
+    Retrieves a list of product links from the specified URL.
+
+    Args:
+        url (str): The URL to scrape for product links.
+
+    Returns:
+        list[str]: A list of product links found on the webpage.
+    """
+    product_links = []
+    response = requests.get(url)
+    if response.status_code == 200:
+        valid_hrefs = remove_invalid_hrefs(response.text)
+        product_links = [url + href for href in valid_hrefs]
+        return product_links
+    else:
+        print("Failed to retrieve directory listing")
+        return None
+
+
+def remove_invalid_hrefs(response_text: str) -> list:
+    """
+    Removes invalid hrefs from the response HTML.
+
+    Args:
+        response (Response): The response object containing the HTML.
+
+    Returns:
+        list: A list of valid hrefs.
+    """
+    valid_hrefs = []
+    soup = BeautifulSoup(response_text, "html.parser")
+    for a_tag in soup.find_all("a", href=True):
+        if not any(s in a_tag.get("href") for s in ["?", "http"]):
+            if "Parent Directory" not in a_tag.contents:
+                href = a_tag.get("href")
+                valid_hrefs.append(href)
+    return valid_hrefs
+
+
 async def fetch_page(session: aiohttp.ClientSession, url: str) -> None | str:
     """
     Fetches the content of a web page using an async HTTP GET request.
@@ -346,27 +387,7 @@ async def crawl_pages(
     export_to_csv(product_dict, collection_name)
 
 
-def get_product_links(url: str = "https://e4ftl01.cr.usgs.gov/") -> list[str]:
-    """
-    Retrieves a list of product links from the specified URL.
-
-    Args:
-        url (str): The URL to scrape for product links. Defaults to "https://e4ftl01.cr.usgs.gov/".
-
-    Returns:
-        list[str]: A list of product links found on the webpage.
-    """
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, "html.parser")
-    product_links = []
-    for a_tag in soup.find_all("a"):
-        href = a_tag.get("href")
-        if href and not href.startswith("?"):  # Exclude links that start with '?'
-            product_links.append(url + href)
-    return product_links
-
-
-def main() -> None:
+def extract_gedi_details() -> None:
 
     parser = argparse.ArgumentParser(
         prog="crawl_pages",
@@ -415,4 +436,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    extract_gedi_details()
