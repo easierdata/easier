@@ -2,6 +2,7 @@
 import argparse
 import asyncio
 import csv
+import re
 import textwrap
 import time
 from pathlib import Path
@@ -294,6 +295,166 @@ def get_product_links(url: str) -> list[str] | None:
         return None
 
 
+def extract_file_details(soup_obj) -> tuple:
+    """
+    Extracts the file details from a BeautifulSoup object.
+
+    Args:
+        soup_obj (BeautifulSoup): The BeautifulSoup object representing the HTML page.
+
+    Returns:
+        tuple: A tuple containing the product title and file type extracted from the file name.
+    """
+    file_name_from_line = soup_obj.find("a", href=True).get("href")
+    product_title, file_type = file_name_from_line.rsplit(".", 1)
+    # Ensure that the product title does not contain a period
+    if "." in product_title:
+        product_title = product_title.rsplit(".", 1)[0]
+    return product_title, file_type
+
+
+def filter_lines_from_response(response_to_filter):
+    """
+    Filters lines from the given response based on valid hrefs.
+
+    Args:
+        response_to_filter (str): The response to filter.
+
+    Returns:
+        list: A list of lines from the response that match the valid hrefs pattern.
+    """
+    valid_hrefs = remove_invalid_hrefs(response_to_filter)
+    valid_hrefs_pattern = "|".join(re.escape(href) for href in valid_hrefs)
+    pattern = re.compile(f'<a href="({valid_hrefs_pattern})">')
+    return [line for line in response_to_filter.splitlines() if pattern.search(line)]
+
+
+def get_directory_from_url(url: str) -> str:
+    """
+    Extracts the directory name from a given URL.
+
+    Args:
+        url (str): The URL from which to extract the directory name.
+
+    Returns:
+        str: The directory name extracted from the URL.
+    """
+    return url.rsplit("/")[-2]
+
+
+def parse_lpdaac_line(response_text, base_url) -> dict:
+    """
+    Parses the response text and extracts metadata information for each product title.
+
+    Args:
+        response_text (str): The response text containing the metadata information.
+        base_url (str): The base URL for constructing the direct URL of each product.
+
+    Returns:
+        dict: A dictionary containing the parsed metadata information for each product file.
+            The dictionary has the following structure:
+              {
+                  product_title: {
+                      file_type: {
+                          "last_modified_date": str,
+                          "file_size": float,
+                          "directory": str,
+                          "direct_url": str
+                      },
+                      "total_size": float
+                  },
+                  ...
+    """
+    parsed_lines_dict = {}
+    lines = filter_lines_from_response(response_text)
+    for line in lines:
+        soup_to_parse = BeautifulSoup(line, features="html.parser")
+        # Extract other details from soup object and instantiate the product_dict with the product details.
+        product_title, file_type = extract_file_details(soup_to_parse)
+        if product_title not in parsed_lines_dict:
+            parsed_lines_dict[product_title] = {}
+        # Extract file size and modified data from the line
+        file_size = line.split()[-1]
+        last_modified_date = line.split()[-3]
+
+        # Assign the product details to the product_dict
+        parsed_lines_dict[product_title][file_type] = {
+            "file_size": convert_to_gb(file_size),
+            "last_modified_date": last_modified_date,
+            "directory": get_directory_from_url(base_url),
+            "direct_url": f"{base_url}/{product_title}.{file_type}",
+        }
+
+        # Calculate the total size of all files for each given product title.
+        total_size = sum(
+            file_info["file_size"]
+            for file_info in parsed_lines_dict[product_title].values()
+            if isinstance(file_info, dict)
+        )
+        parsed_lines_dict[product_title]["total_size"] = round(total_size, 3)
+
+    return parsed_lines_dict
+
+
+def parse_ornl_line(response_text, base_url) -> dict:
+    """
+    Parses the response text and extracts metadata information for each product file found on ORNL DAAC.
+
+    Args:
+        response_text (str): The response text containing the HTML content.
+        base_url (str): The base URL of the product files.
+
+    Returns:
+        dict: A dictionary containing the parsed metadata information for each product file.
+              The dictionary has the following structure:
+              {
+                  product_title: {
+                      file_type: {
+                          "last_modified_date": str,
+                          "file_size": float,
+                          "directory": str,
+                          "direct_url": str
+                      },
+                      "total_size": float
+                  },
+                  ...
+              }
+    """
+    parsed_lines_dict = {}
+    lines = list(filter_lines_from_response(response_text))
+    for line in lines:
+        soup_to_parse = BeautifulSoup(line, features="html.parser")
+        # Find all 'tr' tags in the line which contain the file name, size, and date modified
+        tr_tags = soup_to_parse.find_all("tr")
+        # Extract the values and remove non-breaking space
+        # Remove empty strings and strip the values of leading/trailing whitespaces
+        file_details = [
+            td.text.replace("\xa0", "") for tr in tr_tags for td in tr.find_all("td")
+        ]
+        file_details = [value.strip() for value in file_details if value]
+        # Unpack and assign each item to a separate variable
+        _, modified_date, file_size = file_details
+        # Extract other details from soup object and instantiate the product_dict with the product details.
+        product_title, file_type = extract_file_details(soup_to_parse)
+        if product_title not in parsed_lines_dict:
+            parsed_lines_dict[product_title] = {}
+
+        parsed_lines_dict[product_title][file_type] = {
+            "last_modified_date": modified_date,
+            "file_size": convert_to_gb(file_size),
+            "directory": get_directory_from_url(base_url),
+            "direct_url": f"{base_url}/{product_title}.{file_type}",
+        }
+
+        total_size = sum(
+            file_info["file_size"]
+            for file_info in parsed_lines_dict[product_title].values()
+            if isinstance(file_info, dict)
+        )
+        parsed_lines_dict[product_title]["total_size"] = round(total_size, 3)
+    return parsed_lines_dict
+
+
 def remove_invalid_hrefs(response_text: str) -> list:
     """
     Removes invalid hrefs from the response HTML.
@@ -327,6 +488,11 @@ async def fetch_page(session: aiohttp.ClientSession, url: str) -> None | str:
     """
     async with session.get(url) as response:
         if response.status != 200:
+            # check if response.real_url is valid if the response was was not 200
+            print(
+                f"Failed to retrieve content from page: {url}. Status code: {response.status}"
+            )
+            # Retry session with the real_url value
             return None
         else:
             return await response.text()
@@ -335,19 +501,18 @@ async def fetch_page(session: aiohttp.ClientSession, url: str) -> None | str:
 async def process_page(
     sem: asyncio.Semaphore,
     session: aiohttp.ClientSession,
-    base_url: str,
-    href: str,
-    product_prefix: str,
+    page_url: str,
 ) -> dict | None:
     """
     Process a page by retrieving its content, parsing the relevant information, and storing it in a dictionary.
 
+    NOTE: Currently this method is designed to work with the GEDI mission products that are
+    on the ORNL LP DAACs.
+
     Args:
         sem (Semaphore): A semaphore object used for concurrency control.
         session (aiohttp.ClientSession): An aiohttp ClientSession object for making HTTP requests.
-        base_url (str): The base URL of the page.
-        href (str): The href value of the page.
-        product_prefix (str): The prefix used to identify relevant lines in the page content.
+        page_url (str): The base URL of the page containing html that will be scraped.
 
     Returns:
         dict: A dictionary containing the parsed information from the page.
@@ -355,39 +520,14 @@ async def process_page(
     """
     async with sem:  # acquire semaphore
         product_dict = {}
-        page_url = base_url + href
-        # print(f"Reviewing content on page: {page_url}")
-        page_response = await fetch_page(session, page_url)
-        if page_response is None:
-            # print(f"Failed to retrieve content from page: {page_url}")
-            return product_dict
-        for line in page_response.splitlines():
-            if product_prefix in line:
-                decoded_line = line
-                soup = BeautifulSoup(decoded_line, "html.parser")
-                a_tag = soup.find("a")
-                if a_tag:
-                    href_value = a_tag.get("href")
-                    product_title, file_type = href_value.rsplit(".", 1)
-                    if "." in product_title:
-                        product_title = product_title.rsplit(".", 1)[0]
-                    file_size_str = decoded_line.split()[-1]
+        page_response_text = await fetch_page(session, page_url)
 
-                    # Grab the collection date from the href_value
-                    collection_date = href.split("/")[0]
-                    if product_title not in product_dict:
-                        product_dict[product_title] = {}
-                    product_dict[product_title][file_type] = {
-                        "file_size": convert_to_gb(file_size_str),
-                        "direct_url": page_url + href_value,
-                        "collection_date": collection_date,
-                    }
-                    total_size = sum(
-                        file_info["file_size"]
-                        for file_info in product_dict[product_title].values()
-                        if isinstance(file_info, dict)
-                    )
-                    product_dict[product_title]["total_size"] = round(total_size, 3)
+        # If the page response is not false or None, parse the content
+        if page_response_text:
+            if DAAC_SOURCE == "ornl":
+                product_dict = parse_ornl_line(page_response_text, page_url)
+            elif DAAC_SOURCE == "daac":
+                product_dict = parse_lpdaac_line(page_response_text, page_url)
     return product_dict
 
 
