@@ -36,6 +36,43 @@ Path.mkdir(OUTPUT_PATH, parents=True, exist_ok=True)
 concurrency_limit = 15
 
 
+def get_earthdata_auth(auth_type: str = ["netrc", "token"]):  # -> requests.Session:
+    """
+    Get the Earthdata authentication token.
+
+    Args:
+        type (str): The type of authentication to
+            use. Options are 'netrc' or 'Bearer'.
+
+    Returns:
+    """
+    # Set default values for different auth types
+    netrc_cred = None
+    headers = None
+
+    if auth_type == "netrc":
+        from netrc import netrc
+
+        urs = "urs.earthdata.nasa.gov"
+        netrcDir = Path.home() / ".netrc"
+        username = netrc(netrcDir).authenticators(urs)[0]
+        password = netrc(netrcDir).authenticators(urs)[2]
+        netrc_cred = aiohttp.BasicAuth(username, password)
+    elif auth_type == "token":
+        from os import getenv
+
+        import dotenv
+
+        # Load the .env fileet the value of "BEARER_TOKEN" from the .env file
+        dotenv.load_dotenv()
+        token = getenv("BEARER_TOKEN")
+        headers = {"Authorization": f"Bearer {token}"}
+    else:
+        raise ValueError("Invalid authentication type. Use 'netrc' or Bearer Token")
+
+    return netrc_cred, headers
+
+
 # Convert the file size to gigabytes
 def convert_to_gb(file_size_str: str) -> float:
     """
@@ -355,36 +392,38 @@ async def process_page(
 
 
 async def crawl_pages(
-    base_url: str, a_tags: str, product_prefix: str, collection_name: str
+    collection_url: str, hrefs: list[str], collection_name: str
 ) -> None:
     """
     Crawls through multiple pages and processes the data.
 
     Args:
-        base_url (str): The base URL of the website to crawl.
-        a_tags (list): A list of <a> tags containing the URLs of the pages to crawl.
-        product_prefix (str): The prefix to be added to the product titles.
-        collection_name (str): The name of the GEDI collection.
+        collection_url (str): The collection URL containing one or more directories representing pages to be parsed.
+        hrefs (list): A list of <a> tags containing the URLs of the pages to crawl.
+        collection_name (str): The name of the collection that will be parsed.
 
     Returns:
         None
 
     """
     collection_start_time = time.time()
-
     all_results = []
-    async with aiohttp.ClientSession() as session:
+
+    # Set the token for the Authorization header
+    netrc_auth, headers_auth = get_earthdata_auth(auth_type=AUTH_SELECTION)
+
+    async with aiohttp.ClientSession(auth=netrc_auth, headers=headers_auth) as session:
         # Create a semaphore with X as the maximum number of concurrent tasks
         sem = asyncio.Semaphore(concurrency_limit)
         tasks = []
-        for a_tag in a_tags:
-            href = a_tag["href"]
+        for href in hrefs:
+            product_page_url = collection_url + href
             # Pass the semaphore to process_page in batches per the concurrency limit
-            tasks.append(process_page(sem, session, base_url, href, product_prefix))
+            tasks.append(process_page(sem, session, product_page_url))
 
-        # Process tasks in chunks of per the concurrency limit
+        # Process tasks in chunks based on the concurrency limit set for the semaphore.
         print(
-            f"processing {len(tasks)} web pages for the collection: {collection_name}. Hold tight!"
+            f"Hold tight! Parsing content from {len(tasks)} pages for the collection {collection_name}."
         )
         for i in tqdm.tqdm(range(0, len(tasks), sem._value)):
             chunk = tasks[i : i + sem._value]
@@ -461,23 +500,25 @@ def extract_gedi_details() -> None:
     collection_links = get_product_links(f"{DAAC_URL}/{MISSION_NAME}/")
 
     start_time = time.time()
-    # Loop through each collection links and prepare to extract the product links
+    # Loop through each collection for the selected mission and prepare to extract the product links
     for collection in collection_links:
         base_url = collection
         collection_name = collection.split("/")[-2]
-        collection_prefix = collection_name.split(".")[0]
 
         # grab all the collection product links
-        if collection_prefix:
+        try:
             response = requests.get(base_url)
             if response.status_code != 200:
                 print(f"Invalid URL from: {base_url}")
                 continue
-            soup = BeautifulSoup(response.text, "html.parser")
-            a_tags = soup.find_all("a", href=True)
-            asyncio.run(
-                crawl_pages(base_url, a_tags, f"{collection_prefix}_", collection_name)
-            )
+            valid_hrefs = remove_invalid_hrefs(response.text)
+            asyncio.run(crawl_pages(base_url, valid_hrefs, collection_name))
+        except Exception as e:
+            print(f"Failed to process collection: {collection_name}. Reason: {e}")
+            import traceback
+
+            traceback.print_exc()
+            continue
     # Capture the end time of the script and calculate the total run time
     end_time = time.time()
     run_time: float = end_time - start_time
