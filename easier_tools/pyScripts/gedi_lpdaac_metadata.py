@@ -150,8 +150,9 @@ def export_to_csv(collection_dict: dict, collection_name: str) -> None:
             "total_size",
             "file_type",
             "file_size",
+            "last_modified_date",
             "direct_url",
-            "collection_date",
+            "directory",
         ]
         writer.writerow(headers)
 
@@ -162,16 +163,18 @@ def export_to_csv(collection_dict: dict, collection_name: str) -> None:
                 if isinstance(file_info, dict):
                     # Write a row to the CSV file
                     file_size = file_info["file_size"]
+                    last_modified_date = file_info["last_modified_date"]
                     direct_url = file_info["direct_url"]
-                    collection_date = file_info["collection_date"]
+                    directory = file_info["directory"]
                     writer.writerow(
                         [
                             product_title,
                             total_size,
                             file_type,
                             file_size,
+                            last_modified_date,
                             direct_url,
-                            collection_date,
+                            directory,
                         ]
                     )
 
@@ -195,7 +198,7 @@ def save_stats_to_file(
     run_time = end_time - start_time
 
     # Check if the file exists and create it if it doesn't
-    output_file_path = OUTPUT_PATH / "lpdaac-stats.txt"
+    output_file_path = OUTPUT_PATH / "gedi-parsing-details.txt"
     output_file_path.touch(exist_ok=True)
 
     # Get the total size of all the products
@@ -240,15 +243,15 @@ def save_stats_to_file(
         )
         details["total-size"] = round(details["total-size"], 3)
 
-    collection_dates = set()
+    directories = set()
     for product_info in product_dict.values():
         for file_info in product_info.values():
             if isinstance(file_info, dict):
-                collection_dates.add(file_info["collection_date"])
-    total_days = len(collection_dates)
+                directories.add(file_info["directory"])
+    total_days = len(directories)
     # Grab the earliest and latest collection dates
-    earliest_date = min(collection_dates)
-    latest_date = max(collection_dates)
+    earliest_date = min(directories)
+    latest_date = max(directories)
 
     # Calculate the maximum lengths to make output text look nice
     max_file_type_len = max(len(file_type) for file_type in file_type_details.keys())
