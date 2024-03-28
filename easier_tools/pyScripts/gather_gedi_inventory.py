@@ -394,7 +394,7 @@ def parse_lpdaac_line(response_text, base_url) -> dict:
             "file_size": convert_to_gb(file_size),
             "last_modified_date": last_modified_date,
             "directory": get_directory_from_url(base_url),
-            "direct_url": f"{base_url}/{product_title}.{file_type}",
+            "direct_url": f"{base_url}{product_title}.{file_type}",
         }
 
         # Calculate the total size of all files for each given product title.
@@ -455,7 +455,7 @@ def parse_ornl_line(response_text, base_url) -> dict:
             "last_modified_date": modified_date,
             "file_size": convert_to_gb(file_size),
             "directory": get_directory_from_url(base_url),
-            "direct_url": f"{base_url}/{product_title}.{file_type}",
+            "direct_url": f"{base_url}{product_title}.{file_type}",
         }
 
         total_size = sum(
@@ -538,7 +538,7 @@ async def process_page(
         if page_response_text:
             if DAAC_SOURCE == "ornl":
                 product_dict = parse_ornl_line(page_response_text, page_url)
-            elif DAAC_SOURCE == "daac":
+            elif DAAC_SOURCE == "lp":
                 product_dict = parse_lpdaac_line(page_response_text, page_url)
     return product_dict
 
