@@ -1,9 +1,11 @@
-from pathlib import Path
+# -*- coding: utf-8 -*-
+import datetime
+import json
 import os
 import subprocess
+from pathlib import Path
+
 import pandas as pd
-import json
-import datetime
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -24,7 +26,6 @@ print(datetime.datetime.now())
 
 df = pd.DataFrame(columns=["name", "payload_cid", "piece_size", "piece_cid", "file"])
 for target in targets:
-
     print(target)
 
     car_target = car_dir / Path(str(target.stem) + ".car")
@@ -38,7 +39,7 @@ for target in targets:
 
     # Aggregate
     result = subprocess.run(
-        f"{str(pow_path)} offline prepare --json --aggregate {str(target)} {str(car_target)} --tmpdir {TMPDIR}",
+        f"{pow_path!s} offline prepare --json --aggregate {target!s} {car_target!s} --tmpdir {TMPDIR}",
         shell=True,
         capture_output=True,
     )
@@ -55,10 +56,10 @@ for target in targets:
         }
         df = df.append(temp_df, ignore_index=True)
         df.to_csv(
-            f"{str(car_dir.parent)}/{str(car_dir.stem)}_car_master.csv"
+            f"{car_dir.parent!s}/{car_dir.stem!s}_car_master.csv"
         )  # CHANGE AS REQUIRED
-        with open(
-            f"{str(car_dir.parent)}/{str(car_dir.stem)}_{str(target.stem)}_car_reference.json",
+        with Path.open(
+            f"{car_dir.parent!s}/{car_dir.stem!s}_{target.stem!s}_car_reference.json",
             "w",
             encoding="utf-8",
         ) as fw:

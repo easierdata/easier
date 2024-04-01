@@ -330,7 +330,7 @@ def validate(ds, check_tiled=True, full_check=False):
             ]
         else:
             errors += [
-                "The offset of the first block of the image should " "be after its IFD"
+                "The offset of the first block of the image should be after its IFD"
             ]
     for i in range(len(data_offsets) - 2, 0, -1):
         if data_offsets[i] != 0 and data_offsets[i] < data_offsets[i + 1]:
