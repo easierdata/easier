@@ -15,6 +15,7 @@ from pystac.item import Item
 import pandas as pd
 import datetime
 import glob
+import argparse
 
 # background step: login in USGS EROS so the brower cookie can skip the redirect of USGS when request
 
@@ -95,6 +96,28 @@ def load_todo_list():
     return chronological_list[:20000]
 
 
+def load_scenes(scenesFile):
+    # Read scenes
+    f = open(scenesFile, "r")
+    lines = f.readlines()
+    f.close()
+    header = lines[0].strip()
+    spliter = header.find("|") + 1
+    datasetName = header[: header.find("|")]
+    idField = header[spliter:]
+
+    print("Scenes details:")
+    print(f"Dataset name: {datasetName}")
+    print(f"Id field: {idField}\n")
+
+    entityIds = []
+
+    lines.pop(0)
+    for line in lines:
+        entityIds.append(line.strip())
+    return entityIds
+
+
 def task_run(product_list):
     """
     download product in parallel mode
@@ -112,5 +135,12 @@ def task_run(product_list):
 
 
 if __name__ == "__main__":
-    product_list = load_todo_list()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-s", "--scenes", required=True, help="File contains a list of scene ids"
+    )
+    args = parser.parse_args()
+    scenesFile = args.scenes
+    product_list = load_scenes(scenesFile)
     task_run(product_list)
