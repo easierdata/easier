@@ -1,8 +1,9 @@
 [tool.poetry]
-name = "code"
+name = "easier_tools"
 version = "0.1.0"
 description = "EASIER is our sandbox env for developing and testing all things Dweb."
 authors = [
+    "John Solly <jsolly@pm.me>",
     "Seth Docherty <sddocherty@gmail.com>",
     "Zheng Liu <zliu1208@umd.edu>",
     "Matthew Nanas <mnanas@umd.edu>",
@@ -37,6 +38,11 @@ shapely = "==2.0.1"
 ipfs-api = "==0.2.3"
 ipykernel = "^6.21.1"          # Package provides the required kernal to run jupyter notebooks
 ipywidgets = "^8.1.2"
+beautifulsoup4 = "^4.12.3"
+aiohttp = "^3.9.3"
+aiofiles = "^23.2.1"
+tqdm = "^4.66.2"
+jupyterlab = "^4.1.5"
 
 [tool.poetry.group.dev.dependencies]
 black = "==23.3.0"     # formatting
@@ -45,6 +51,11 @@ isort = "^5.12.0"
 pre-commit = "==3.3.3" # Used for pre-commit hooks
 mypy = "^1.9.0"
 # flake8 = "==6.0.0"     # for linting
+
+[tool.poetry.scripts]
+get-gedi-details = "easier_tools.pyScripts.gather_gedi_inventory:extract_gedi_details"
+update-netrc = "easier_tools.utils.update_netrc_file:update_netrc_file"
+
 
 [tool.black]
 line-length = 88

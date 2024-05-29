@@ -27,9 +27,9 @@
         "reportImplicitStringConcatenation": "warning"
     },
     "python.analysis.gotoDefinitionInStringLiteral": true,
-    "python.analysis.inlayHints.callArgumentNames": "all",
+    "python.analysis.inlayHints.callArgumentNames": "partial",
     "python.analysis.inlayHints.functionReturnTypes": true,
-    "python.analysis.inlayHints.variableTypes": true,
+    "python.analysis.inlayHints.variableTypes": false,
     "python.terminal.activateEnvInCurrentTerminal": true,
     "python.terminal.activateEnvironment": true,
     "notebook.codeActionsOnSave": {
