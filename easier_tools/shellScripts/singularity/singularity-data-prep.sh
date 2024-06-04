@@ -147,11 +147,6 @@ prepare_data() {
     if [ "$create_output" -eq 1 ] && [ -z "$output_path" ]; then
         # Set default output path
         output_path="$root_dir/$case_name-cars"
-    fi
-
-    # Check if create_output is not set, then set it to 1
-    if [ "$create_output" -eq 1 ]; then
-        output_storage_name="$case_name-cars"
         echo "Output creation is enabled."
         echo "Output path: $output_path"
     fi
