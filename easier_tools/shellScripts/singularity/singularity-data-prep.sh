@@ -276,12 +276,17 @@ prepare_data() {
             run_dataset_worker
         fi
 
+    # starting daggen process is only needed if create_output is enabled
+    if [ $create_output -eq 1 ]; then
+        # # Initiate the start-daggen process and run the dataset worker
+        init_daggen
+        run_dataset_worker
     fi
     ### ................................................................................................................................................................................................................................................
 
-    # Initiate the start-daggen process and run the dataset worker
-    init_daggen
-    run_dataset_worker
+    # # Initiate the start-daggen process and run the dataset worker
+    # init_daggen
+    # run_dataset_worker
 
     # 5) Reviewing the results
     # List the pieces from the scanned preparation
