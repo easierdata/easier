@@ -41,9 +41,9 @@ prepare_data() {
     case_name="dataset"
     concurrency_workers=1
     db_connection_string=""
-    storage_name="$case_name-source"
-    prep_name="$case_name-prep"
-    output_storage_name="$case_name-output"
+    storage_name=""
+    prep_name=""
+    output_storage_name=""
 
     # Parse named parameters
     for arg in "$@"
@@ -103,6 +103,19 @@ prepare_data() {
         esac
     done
 
+    # Define the names for storage, prep, output profiles if no value is passed in
+    if [ -z "$storage_name" ]; then
+        storage_name="$case_name-source"
+    fi
+
+    if [ -z "$prep_name" ]; then
+        prep_name="$case_name-prep"
+    fi
+
+    if [ -z "$output_storage_name" ]; then
+        output_storage_name="$case_name-output"
+    fi
+
     # Define the root directory path if it's not provided
     if [ -z "$root_dir" ]; then
         root_dir=$(pwd)
@@ -111,10 +124,10 @@ prepare_data() {
     # Create directory to store results case results. The directory name is the case name
     caseDir="$root_dir/$case_name"
 
-    # Remove the directory if it exists, otherwise create the directory
+    # Create the directory if it does not exist
     if [ ! -d "$caseDir" ]; then
         mkdir -p "$caseDir"
-    # else
+    # else # Remove the directory if it exists
     #     rm -rf "$caseDir"
     #     mkdir -p "$caseDir"
     fi
