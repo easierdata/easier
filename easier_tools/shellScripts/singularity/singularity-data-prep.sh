@@ -3,7 +3,7 @@
 # Other files to source
 # Get the directory of the current script
 script_dir=$(dirname "$0")
-source "$script_dir/token_renewal.sh"
+# source "$script_dir/token_renewal.sh"
 source "$script_dir/_singularity_helpers.sh"
 
 ## DEFAULT GLOBAL VALUES
@@ -178,8 +178,8 @@ prepare_data() {
         echo "Starting RESCAN/REPACK process to look for changes..."
         if [ $use_aws -eq 1 ]; then
             while true; do
-                # Initiate the start-pack process by updating the source storage
-                repack_preparation
+
+                repack_preparation "$sample_data_path"
                 output=$(run_dataset_worker)
                 if [[ $output == *"ExpiredToken"* ]]; then
                     time_check=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
@@ -211,14 +211,7 @@ prepare_data() {
 
         ### ................................................................................................................................................................................................................................................
         # 2) Create storage source profile
-        if [ $use_aws -eq 1 ]; then
-            generate_token
-            echo "Command: singularity --verbose --database-connection-string=$db_connection_string storage create s3 aws --client-scan-concurrency $concurrency_workers --region $REGION_NAME --endpoint $AWS_ENDPOINT --session-token $SESSION_TOKEN --access-key-id $ACCESS_KEY_ID --secret-access-key $SECRET_ACCESS_KEY --name $storage_name --path $sample_data_path" >> "$process_times"
-            /usr/bin/time -o "$process_times" -a -f "Command Execution Time:\n\t Real: %E\n\t User: %U\n\t System: %S" singularity --verbose --database-connection-string="$db_connection_string" storage create s3 aws --client-scan-concurrency "$concurrency_workers" --region "$REGION_NAME" --endpoint "$AWS_ENDPOINT" --session-token "$SESSION_TOKEN" --access-key-id "$ACCESS_KEY_ID" --secret-access-key "$SECRET_ACCESS_KEY" --name "$storage_name" --path "$sample_data_path"
-        else
-            echo "Command: singularity --verbose --database-connection-string=$db_connection_string storage create local --client-scan-concurrency $concurrency_workers --name $storage_name --path $sample_data_path" >> "$process_times"
-            /usr/bin/time -o "$process_times" -a -f "Command Execution Time:\n\t Real: %E\n\t User: %U\n\t System: %S" singularity --verbose --database-connection-string="$db_connection_string" storage create local --client-scan-concurrency "$concurrency_workers" --name "$storage_name" --path "$sample_data_path"
-        fi
+        check_storage_exists "$storage_name" "$sample_data_path" "$use_aws"
         ### ................................................................................................................................................................................................................................................
 
 
@@ -236,19 +229,17 @@ prepare_data() {
             mkdir -p "$output_path"
 
             # Create output storage source
-            echo "Command: singularity --verbose --database-connection-string=$db_connection_string storage create local --client-scan-concurrency 1 --name $output_storage_name --path $output_path" >> "$process_times"
-            /usr/bin/time -o "$process_times" -a -f "Command Execution Time:\n\t Real: %E\n\t User: %U\n\t System: %S" singularity --verbose --database-connection-string="$db_connection_string" storage create local --client-scan-concurrency 1 --name "$output_storage_name" --path "$output_path"
+            check_storage_exists "$output_storage_name" "$output_path" 0
         fi
         ### ................................................................................................................................................................................................................................................
 
         ### ................................................................................................................................................................................................................................................
         # 3) Create dataset preparation profile
+        check_prep_exists "$prep_name" "$storage_name"
+
         if [ $create_output -eq 1 ]; then
-            echo "Command: singularity --verbose --database-connection-string=$db_connection_string prep create --name $prep_name --source $storage_name --output $output_storage_name" >> "$process_times"
-            /usr/bin/time -o "$process_times" -a -f "Command Execution Time:\n\t Real: %E\n\t User: %U\n\t System: %S" singularity --verbose --database-connection-string="$db_connection_string" prep create --name "$prep_name" --source "$storage_name" --output "$output_storage_name"
-        else
-            echo "Command: singularity --verbose --database-connection-string=$db_connection_string prep create --name $prep_name --source $storage_name" >> "$process_times"
-            /usr/bin/time -o "$process_times" -a -f "Command Execution Time:\n\t Real: %E\n\t User: %U\n\t System: %S" singularity --verbose --database-connection-string="$db_connection_string" prep create --name "$prep_name" --source "$storage_name"
+        # Optionally check if the dataset preparation profile contains an output storage profile and attach it if it doesn't
+            check_prep_output_profile "$prep_name" "$output_storage_name"
         fi
         ### ................................................................................................................................................................................................................................................
 
@@ -267,7 +258,7 @@ prepare_data() {
                     time_check=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
                     echo "Token expired. Renewing...($time_check)" >> "$process_times"
                     echo "Token expired. Renewing...($time_check)"
-                    repack_preparation
+                    repack_preparation "$sample_data_path"
                 else
                     break
                 fi
@@ -275,6 +266,7 @@ prepare_data() {
         else
             run_dataset_worker
         fi
+    fi
 
     # starting daggen process is only needed if create_output is enabled
     if [ $create_output -eq 1 ]; then
