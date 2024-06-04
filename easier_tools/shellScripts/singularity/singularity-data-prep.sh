@@ -227,10 +227,10 @@ prepare_data() {
         # This is OPTIONAL and is not required. It's only needed if you do not want to perform `Inline Preparation`
         if [ $create_output -eq 1 ]; then
 
-            # Delete output storage directory if it exists
-            if [ -d "$output_path" ]; then
-                rm -rf "$output_path"
-            fi
+            # # Delete output storage directory if it exists
+            # if [ -d "$output_path" ]; then
+            #     rm -rf "$output_path"
+            # fi
 
             # Create output storage directory
             mkdir -p "$output_path"
