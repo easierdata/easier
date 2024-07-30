@@ -17,7 +17,6 @@ import sys
 import tarfile
 import threading
 import time
-from pathlib import Path
 from urllib.parse import urlparse
 
 import requests
@@ -26,7 +25,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-path = "../../data/landsat/m2m_download"  # Fill a valid download path
+path = "../../data/landsat/m2m_token"  # Fill a valid download path
 maxthreads = 16  # Threads count for downloads
 sema = threading.Semaphore(value=maxthreads)
 label = datetime.datetime.now().strftime(
@@ -123,24 +122,26 @@ def handle_400_error(http_status_code, exit_if_no_response):
 def downloadFile(url):
     sema.acquire()
     try:
-        response = requests.get(url, stream=True, timeout=5)
+        response = requests.get(url, stream=True)
         disposition = response.headers["content-disposition"]
         filename = re.findall("filename=(.+)", disposition)[0].strip('"')
-        print(f"Downloading {filename} ...\n")
+        print(f"Downloading {filename}...")
         product_id = filename[:-4]
         ac_date = filename.split("_")[3]
-        if path != "" and path[-1] != "/":
-            filename = "/" + filename
-        Path.open(path + filename, "wb", encoding="utf-8").write(response.content)
+        # if path != "" and path[-1] != "/":
+        #     filename = "/" + filename
+        print(path, filename, os.path.join(path, filename), response)
+        open(os.path.join(path, filename), "wb").write(response.content)
+        # Path.open(path + filename, "wb", encoding="utf-8").write(response.content)
 
-        tar = tarfile.open(path + filename)
+        tar = tarfile.open(os.path.join(path, filename))
         tar.extractall(path + "/" + ac_date + "/" + product_id)
         tar.close()
-        Path.unlink(path + filename)
+        os.unlink(os.path.join(path, filename))
         print(f"Downloaded and extracted {filename}\n")
         sema.release()
-    except Exception:
-        print(f"Failed to download from {url}. Will skip.")
+    except Exception as e:
+        print(f"Failed to download from {url}. Will skip. \n {e}")
         sema.release()
         # runDownload(threads, url)
 
@@ -169,6 +170,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     username = os.getenv("M2M_USER")
     password = os.getenv("M2M_PSWD")
+    print("username", username)
+    # token = os.getenv("M2M_TOKEN")
     filetype = args.filetype
     scenesFile = args.scenes
     print("\nRunning Scripts...\n")
@@ -182,7 +185,8 @@ if __name__ == "__main__":
     print("API Key: " + apiKey + "\n")
 
     # Read scenes
-    f = Path.open(scenesFile, "r", encoding="utf-8")
+    print(f"Reading {scenesFile}")
+    f = open(scenesFile, "r", encoding="utf-8")
     lines = f.readlines()
     f.close()
     header = lines[0].strip()
@@ -240,7 +244,7 @@ if __name__ == "__main__":
         downloads = [
             {"entityId": product["entityId"], "productId": product["id"]}
             for product in products
-            if product["bulkAvailable"]
+            if product["bulkAvailable"] and product["downloadSystem"] != "folder"
         ]
     elif filetype == "band":
         # select band files
