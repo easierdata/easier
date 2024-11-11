@@ -44,6 +44,8 @@ prepare_data() {
     storage_name=""
     prep_name=""
     output_storage_name=""
+    storage_type="local"  # Set default storage type to 'local'
+
 
     # Parse named parameters
     for arg in "$@"
@@ -95,6 +97,14 @@ prepare_data() {
             ;;
             --repack)
             repack=1
+            shift
+            ;;
+            --storage-type=*)
+            storage_type="${arg#*=}"
+            if ! [[ "$storage_type" =~ ^(local|aws|http)$ ]]; then
+                echo "Invalid storage type: $storage_type. Allowed values are 'local', 'aws', 'http'."
+                exit 1
+            fi
             shift
             ;;
             *)
