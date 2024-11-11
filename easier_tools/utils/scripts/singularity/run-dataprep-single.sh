@@ -65,7 +65,8 @@ sample_source_path="/path/to/local/sample_data"
 
 #---------------------------------------------------------------------------------------------------------
 # Source the script containing the function
-script_dir=$(dirname "$0")
+# script_dir=$(dirname "$0")
+script_dir=$(dirname "${BASH_SOURCE[0]}")
 source "$script_dir/singularity-data-prep.sh"
 #---------------------------------------------------------------------------------------------------------
 

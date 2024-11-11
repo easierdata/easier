@@ -2,7 +2,8 @@
 
 # Other files to source
 # Get the directory of the current script
-script_dir=$(dirname "$0")
+# script_dir=$(dirname "$0")
+script_dir=$(dirname "${BASH_SOURCE[0]}")
 source "$script_dir/token_renewal.sh"
 
 # Function to run dataset-worker
