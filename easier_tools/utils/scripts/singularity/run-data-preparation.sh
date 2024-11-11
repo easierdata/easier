@@ -8,7 +8,7 @@ export GOLOG_LOG_LEVEL='info'
 
 #---------------------------------------------------------------------------------------------------------
 ### Script Parameters
-# --root-dir - Define the root directory where test cases will be saved.
+# --root-dir - Define the root directory where test cases will be saved. A log file will be created in this directory to track processing details.
 #           DEFAULTS to current working directory if no value is passed in.
 # --sample-data-path - Path to where the sample data is. NOTE: Ensure is a valid S3 bucket URL if passing in the param `--use-aws`
 #           DEFAULTS to a folder named “sample_data” based on the value passed to `root-dir`.
@@ -36,9 +36,14 @@ export GOLOG_LOG_LEVEL='info'
 # --repack - Optional argument to perform the action of repacking the source content due to a failed `start-scan` task. This happens typically due to **Session Tokens** expiring.
 #            Passing in this argument will update the specified storage source. This is useful when referencing an existing database to create new storage sources and preparations.
 #
-#   NOTE: If you are passing in the `--repack` flag, ensure that `--storage-name` and `--prep-name` are the same as the original source and preparation names. Account for `--case-name` if
-#         it was set in previous runs as that is the suffix to the store and prep profile names.  Additionally, ensure that the `--root-dir` is correctly referenced as the default
-#         sqlite3 DB is stored there and that `--sample-data-path` is the same as the original source path.
+#   NOTES:
+#       1. If you are passing in the `--repack` flag, ensure that `--storage-name` and `--prep-name` are the same as the original source and preparation names. Account for `--case-name` if
+#       it was set in previous runs as that is the suffix to the store and prep profile names.  Additionally, ensure that the `--root-dir` is correctly referenced as the default
+#       sqlite3 DB is stored there and that `--sample-data-path` is the same as the original source path.
+#
+#       2. In order to access content from EarthData, AWS tokens must be generated on an hourly basis. When tokens are needed, `token_renewal.sh` is triggered and references the path passed
+#       into `sample_source_path` to identify which DAAC enpoint to use.
+#
 #   IMPORTANT: When using the `--repack` flag, it's crucial to ensure that the Singularity instance is properly configured to handle the repack operation. This includes having sufficient
 #              disk space and CPU resources available. Failure to ensure this may result in incomplete or failed repack operations.
 #
@@ -70,7 +75,10 @@ script_dir=$(dirname "${BASH_SOURCE[0]}")
 source "$script_dir/singularity-data-prep.sh"
 #---------------------------------------------------------------------------------------------------------
 
-prepare_data --storage-name="GEDI_L4B_Gridded_Biomass_V2_1_source" --prep-name="GEDI_L4B_Gridded_Biomass_V2_1_output__" --case-name="GEDI_L4B_Gridded_Biomass_V2_1" --root-dir="$results_dir" --sample-data-path="$sample_source_path" --reset-db --create-output --use-aws
+prepare_data --storage-name="<enter name>-storage" --prep-name="<enter name>-prep" --case-name="<enter profile name>" --root-dir="$results_dir" --sample-data-path="$sample_source_path" --reset-db
+
+### Example of preparing content from S3 bucket
+# prepare_data --storage-name="GEDI_L4B_Gridded_Biomass_V2_1_source" --prep-name="GEDI_L4B_Gridded_Biomass_V2_1_output__" --case-name="GEDI_L4B_Gridded_Biomass_V2_1" --root-dir="$results_dir" --sample-data-path="$sample_source_path" --reset-db --create-output --use-aws --concurrency-process=4
 
 ### If you would like to prepare multiple datasets, you can run additional `prepare_data` commands below.
 # prepare_data --storage-name="GEDI_L4A_AGB_Density_GW_source" --prep-name="GEDI_L4A_AGB_Density_GW_output" --case-name="GEDI_L4A_AGB_Density_GW" --root-dir="$results_dir" --sample-data-path="$sample_source_path3" --use-aws
