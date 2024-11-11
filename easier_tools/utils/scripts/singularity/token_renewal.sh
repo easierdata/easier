@@ -14,6 +14,30 @@ generate_token() {
         return 1
     fi
 
+    cookie_file_path=$HOME/.urs_cookies
+    # Check if file already exists and delete: Uncomment if you want to delete the cookie file
+    # if [ -f $cookie_file_path ]; then
+    #     rm ~/.urs_cookies
+    # fi
+
+    # Requestng new AWS token
+    response=$(curl -b "$cookie_file_path" -c "$cookie_file_path" -L -n "https://$daac_url/s3credentials" | jq -r '.')
+
+
+    # ### Alternative approach that stores the token to a timestamped file within the `~/.cookies` directory
+    # #
+    # # Create unique cookie file name based on timestamp variable and save it to the .cookies directory
+    # timestamp=$(date +"%Y%m%d%H%M%S")
+    # cookie_file="cookie_$timestamp"
+    # # make sure the `~/.cookies` directory existsf
+    # mkdir -p ~/.cookies
+
+    # #Check if ~/.cookies/"$cookie_file" file exists and delete if it does
+    # if [ -f "$cookie_file_path" ]; then
+    #     rm "$cookie_file_path"
+    # fi
+    # cookie_file_path=~/.cookies/"$cookie_file"
+
     # Parse the response and save the values to variables
     accessKeyId=$(echo $response | jq -r '.accessKeyId')
     secretAccessKey=$(echo $response | jq -r '.secretAccessKey')
