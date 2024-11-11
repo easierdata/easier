@@ -54,26 +54,70 @@ function generate_token {
 # The latest token details can be found in the .env file in the user's home directory
 function update_rclone_config {
     profile_name=$1
-    if [[ $profile_name =~ "s3" ]]; then
+
+    # Open the rclone config file and extract the profile section that needs to be updated
+    rcloneConfigFile="$HOME/.config/rclone/rclone.conf"
+    startLine=$(grep -nE "^\[$profile_name\]" "$rcloneConfigFile" | cut -d: -f1)
+    endLine=$(grep -nE "^\[" "$rcloneConfigFile" | grep -A1 -m1 "^$startLine" | tail -n1 | cut -d: -f1)
+    endLine=$((endLine - 1)) # Adjust end line to capture up to previous section
+
+    # Extract the profile section that needs to be updated
+    profileLines=$(sed -n "$startLine,$endLine p" "$rcloneConfigFile")
+
+        # Check if the 'type' property exists and is set to 's3'
+    profileType=$(echo "$profileLines" | grep -E "^type\s*=" | cut -d'=' -f2 | xargs)
+
+    if [[ "$profileType" == "s3" ]]; then
         generate_token "$profile_name"
     else
-        echo "Profile does not specify S3 storage. Tokens will not be generated."
+        echo "storage type error for $profile_name"
+        echo "The property 'type' is missing or not assigned the value 's3'. Currently set to: $profileType "
+        echo "Exiting..."
         return
     fi
+
+        # Read in the token details from the .env file
     envFile="$HOME/.env"
     accessKeyId=$(grep -E "^ACCESS_KEY_ID=" "$envFile" | cut -d'=' -f2)
     secretAccessKey=$(grep -E "^SECRET_ACCESS_KEY=" "$envFile" | cut -d'=' -f2)
     sessionToken=$(grep -E "^SESSION_TOKEN=" "$envFile" | cut -d'=' -f2)
-    rcloneConfigFile="$HOME/.config/rclone/rclone.conf"
-    startLine=$(grep -nE "^\[$profile_name\]" "$rcloneConfigFile" | cut -d':' -f1)
-    endLine=$(grep -nE "^\[" "$rcloneConfigFile" | grep -A1 -m1 "^$startLine" | tail -n1 | cut -d':' -f1)
-    profileLines=$(sed -n "$startLine,$endLine p" "$rcloneConfigFile")
-    profileLines=$(echo "$profileLines" | sed -E "s/(access_key_id = ).*/\1$accessKeyId/")
-    profileLines=$(echo "$profileLines" | sed -E "s/(secret_access_key = ).*/\1$secretAccessKey/")
-    profileLines=$(echo "$profileLines" | sed -E "s/(session_token = ).*/\1$sessionToken/")
-    sed -i "$startLine,$endLine d" "$rcloneConfigFile"
-    sed -i "$startLine i$profileLines" "$rcloneConfigFile"
-    echo "Updated rclone config file for profile: $profile_name"
+
+    # Update profileLines with new values or add them if missing
+    # NOTE: Escape special characters in variables. Using by using the `@` as the delimiter in sed avoids conflicts
+    #       with characters that may be present in the values
+    if ! echo "$profileLines" | grep -q "access_key_id ="; then
+        profileLines="$profileLines"$'\n'"access_key_id = $accessKeyId"
+    else
+        profileLines=$(echo "$profileLines" | sed -E "s@(access_key_id = ).*@\1$accessKeyId@")
+    fi
+
+    if ! echo "$profileLines" | grep -q "secret_access_key ="; then
+        profileLines="$profileLines"$'\n'"secret_access_key = $secretAccessKey"
+    else
+        profileLines=$(echo "$profileLines" | sed -E "s@(secret_access_key = ).*@\1$secretAccessKey@")
+    fi
+
+    if ! echo "$profileLines" | grep -q "session_token ="; then
+        profileLines="$profileLines"$'\n'"session_token = $sessionToken"
+    else
+        profileLines=$(echo "$profileLines" | sed -E "s@(session_token = ).*@\1$sessionToken@")
+    fi
+    # Create a temporary file for the new content
+    tempFile=$(mktemp)
+
+    # Write content before the section
+    head -n $((startLine - 1)) "$rcloneConfigFile" > "$tempFile"
+
+    # Write the updated section
+    echo "$profileLines" >> "$tempFile"
+
+    # Write content after the section
+    tail -n +$((endLine)) "$rcloneConfigFile" >> "$tempFile"
+
+    # Replace the original file with the updated content
+    mv "$tempFile" "$rcloneConfigFile"
+
+    echo "Updated configuration for profile '$profile_name'."
 }
 
 # Check if profile_name is provided
