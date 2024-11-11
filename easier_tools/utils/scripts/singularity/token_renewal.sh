@@ -6,30 +6,13 @@ generate_token() {
     echo "Getting new token for $daac_source"
     # Check if daac_source is ornl or lpdaac
     if [[ "$daac_source" == *"ornl"* ]]; then
-        daac_url="https://data.ornldaac.earthdata.nasa.gov/s3credentials"
-    else #[[ "$daac_source" == *"lpdaac"* ]]; then
-        daac_url="https://data.lpdaac.earthdatacloud.nasa.gov/s3credentials"
+        daac_url="data.ornldaac.earthdata.nasa.gov"
+    elif [[ "$daac_source" == *"lp"* ]]; then
+        daac_url="data.lpdaac.earthdatacloud.nasa.gov"
+    else:
+        echo "Invalid DAAC source. Please provide a valid source."
+        return 1
     fi
-
-    # Create unique cookie file name based on timestamp variable and save it to the .cookies directory
-    timestamp=$(date +"%Y%m%d%H%M%S")
-    cookie_file="cookie_$timestamp"
-    # make sure the `~/.cookies` directory exists
-    mkdir -p ~/.cookies
-
-
-    # # # Check if ~/.urs_cookies file exists and delete if it does
-    # # if [ -f ~/.urs_cookies ]; then
-    # #     rm ~/.urs_cookies
-    # # fi
-    #Check if ~/.cookies/"$cookie_file" file exists and delete if it does
-    if [ -f "$cookie_file_path" ]; then
-        rm "$cookie_file_path"
-    fi
-    cookie_file_path=~/.cookies/"$cookie_file"
-
-    # Run the curl command to get the AWS credentials that are saved to .env file in the users home directory.
-    response=$(curl -b "$cookie_file_path" -c "$cookie_file_path" -L -n "$daac_url" | jq -r '.')
 
     # Parse the response and save the values to variables
     accessKeyId=$(echo $response | jq -r '.accessKeyId')
