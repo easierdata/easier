@@ -7,6 +7,22 @@ Singularity offers a modular end-to-end solution designed to simplify the proces
 
 -----
 
+## Table of Contents
+
+- [Singularity - Data Onboarding Tool](#singularity---data-onboarding-tool)
+  - [Table of Contents](#table-of-contents)
+  - [Resources](#resources)
+  - [Onboarding Data with Singularity](#onboarding-data-with-singularity)
+    - [How Singularity chunks content](#how-singularity-chunks-content)
+    - [How Singularity packages content](#how-singularity-packages-content)
+  - [Additional Notes](#additional-notes)
+  - [Onboarding Scripts](#onboarding-scripts)
+    - [run-data-preparation](#run-data-preparation)
+        - [Overview of script parameters](#overview-of-script-parameters)
+        - [Optional argument flags](#optional-argument-flags)
+        - [Example usage](#example-usage)
+    - [Need to test performance?](#need-to-test-performance)
+
 ## Resources
 
 Details [here](https://data-programs.gitbook.io/singularity/installation/install-from-source) on installing singularity from source.
@@ -146,3 +162,95 @@ Below are notes I've captured while working with Singularity.  These notes are m
 - `singularity prep explore <preparation id|name> <storage id|name> [path]`  Explore a preparation by listing all content under a path.  To view content at the root path, pass in `/` for `[path]`. Since the Merkle DAGs retain the file pathing, you can navigate a directory structure and identify the
 
 </details>
+
+## Onboarding Scripts
+
+A collection of scripts that created to help automate the onboarding process.  These scripts, found [here](../easier_tools/utils/scripts/singularity/), are meant to be used as a starting point and can be modified to fit your specific use case.
+
+### run-data-preparation
+
+**[run-data-preparation.sh](../easier_tools/utils/scripts/singularity/run-data-preparation.sh)** is designed to automate the process of preparing and onboarding data, either from a local directory, HTTP Endpoint or an available [EarthData AWS S3 bucket](https://search.earthdata.nasa.gov/search?ff=Available%20in%20Earthdata%20Cloud). It assists with the various data preparation processes such as handling updating existing storage sources, repacking data, and generating output CAR files.
+
+> :memo:	You can think of this script as the `recipe`, defining the entire data preparation pipeline for Singularity.  It's recommended to make a copy of this script as to configure for different collections and use cases. This is quite useful for performance testing such as testing different types of databases or tweaking the concurrency value for optimal performance.
+>
+
+##### Overview of script parameters
+
+`--root-dir` - Define the root directory where test cases will be saved. A log file will be created in this directory to track processing details. *DEFAULTS to current working directory if no value is passed in.*
+`--sample-data-path` - Path to where the sample data is. NOTE: Ensure is a valid S3 bucket URL if passing in the param `--use-aws`. *DEFAULTS to a folder named “sample_data” based on the value passed to `root-dir`.*
+`--case-name` - Title of the test case.  Useful when you need to run multiple test cases in a row and understand how different settings impact overall performance time. *DEFAULTS to “dataset” if no value is passed in.*
+`--concurrency-process` - Set the max number of CPU cores for all Singularity commands that utilize concurrent processing. *DEFAULTS to 1 if no value is passed in.*
+`--db-connection-string` - Override the default DB connection by pointing to a specific instance. *DEFAULTS to sqlite3 DB that’s created in a folder named “db” found in `root-dir`.*
+`--storage-name` - Name of the storage profile. *DEFAULTS to `<case-name>-source` if no value is passed in.*
+`--prep-name` - Name of the preparation profile. *DEFAULTS to <case-name>-prep` if no value is passed in.*
+`--output-path` - An optional argument to override the default output path for the generated output CAR files. By default, the cars files are saved to the directory specified for the argument, `--root-dir`. Pass in a directory path for the agrument `--output-path` If you want to save the cars files to a different location.
+
+``` bash
+  Example:
+       output_cars_dir="/tmp/performance_test/output_cars"
+       --output-path="$output_cars_dir"
+```
+
+##### Optional argument flags
+
+Passing in these optional arguments will trigger the following actions:
+
+`--use-aws` - Pass in this argument if you would like to use an S3 bucket instead of a local directory.  *NOTE:  that `--sample-data-path` argument must be a valid S3 bucket URL.*
+  > :zap: In order to access content from EarthData, AWS tokens must be generated on an hourly basis. When tokens are needed, `token_renewal.sh` is triggered and references the path passed
+  > into `sample_source_path` to identify which DAAC enpoint to use.
+
+`--create-output` - Pass in this argument if you would like to override inline-preparation by generating the output car files.
+`--reset-db` - An optional argument to perform a hard-reset of the database. This is useful when referencing an existing database to create new storage sources and preparations.
+`--repack` - Optional argument to perform the action of repacking the source content due to a failed `start-scan` task. This happens typically with AWS S3 sources due to **Session Tokens** expiring.
+
+  > :zap: **IMPORTANT** :zap: When using the `--repack` flag, it's crucial to ensure that the Singularity instance is properly configured to handle the repack operation. This includes having sufficient
+  > disk space and CPU resources available. Failure to ensure this may result in incomplete or failed repack operations.
+  >
+  > Additionally with the `--repack` flag, ensure that `--storage-name` and `--prep-name` are the same as the original source and preparation names. Account for `--case-name` if
+  > it was set in previous runs as that is the suffix to the store and prep profile names.  Additionally, ensure that the `--root-dir` is correctly referenced as the default
+  > sqlite3 DB is stored there and that `--sample-data-path` is the same as the original source path.
+
+##### Example usage
+
+Below are some examples of running the `prepare_data` function with different parameters and arguments:
+
+1. Using a local directory as the sample data source, specifying the preparation profile name, and creating output at a specific location:
+
+    ```bash
+    prepare_data --case-name="testing_a_local_source" --root-dir="/path/to/results/directory" --sample-data-path="/path/to/sample/data" --prep-name="GEDI_L4B_Gridded_Biomass_V2_1_p" --create-output --output-path="/path/to/output/cars"
+    ```
+
+2. Overriding the default DB connection and specifying a storage name:
+
+    ```bash
+    prepare_data --db-connection-string "postgresql://user:password@localhost/dbname" --storage-name "myStorage" --root-dir="/path/to/results/directory" --sample-data-path="/path/to/sample/data"
+    ```
+
+3. Using AWS S3 bucket as the sample data source, setting the storage and preparation profile names, resetting the database, and creating output:
+
+    ```bash
+    prepare_data --storage-name="my_super_cool_SOURCE_name" --prep-name="my_super_cool_PREP_name" --case-name="GEDI_L4B_Gridded_Biomass_V2_1" --root-dir="/path/to/results/directory" --sample-data-path="s3://bucket/path" --reset-db --create-output --use-aws
+    ```
+
+4. Using AWS S3 bucket as the sample data source, creating output, and saving the output to a specific location:
+
+    ```bash
+    prepare_data --case-name="testing_with_aws" --root-dir="/path/to/results/directory" --sample-data-path="s3://bucket/path" --use-aws --create-output --output-path="/path/to/output/cars"
+    ```
+
+5. Using AWS S3 bucket as the sample data source, repacking an existing preparation and creating output:
+
+    ```bash
+    prepare_data --case-name="GEDI_L1B_source" --root-dir="/path/to/results/directory" --sample-data-path="s3://bucket/path" --create-output --use-aws --repack
+    ```
+
+### Need to test performance?
+
+If you're looking to test the concurrency performance of Singularity, [sample_data_gen.sh](../easier_tools/utils/scripts/singularity/sample_data_gen.sh) can generate a directory of sample data at a provided output folder.  The resultant output contains of:
+
+1. A folder containing N number of "small" files at a defined size in bytes
+2. A folder with an empty folder inside
+3. A single "large" file at a defined size in GB.
+
+> :white_check_mark: The shell script contains three variables that can be modified to customize sample data generation. Modify them before running.
+>
