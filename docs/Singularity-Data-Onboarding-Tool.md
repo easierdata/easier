@@ -18,9 +18,9 @@ Singularity offers a modular end-to-end solution designed to simplify the proces
   - [Additional Notes](#additional-notes)
   - [Onboarding Scripts](#onboarding-scripts)
     - [run-data-preparation](#run-data-preparation)
-        - [Overview of script parameters](#overview-of-script-parameters)
-        - [Optional argument flags](#optional-argument-flags)
-        - [Example usage](#example-usage)
+      - [Overview of script parameters](#overview-of-script-parameters)
+      - [Optional argument flags](#optional-argument-flags)
+      - [Example usage](#example-usage)
     - [Need to test performance?](#need-to-test-performance)
 
 ## Resources
@@ -174,7 +174,7 @@ A collection of scripts that created to help automate the onboarding process.  T
 > :memo:	You can think of this script as the `recipe`, defining the entire data preparation pipeline for Singularity.  It's recommended to make a copy of this script as to configure for different collections and use cases. This is quite useful for performance testing such as testing different types of databases or tweaking the concurrency value for optimal performance.
 >
 
-##### Overview of script parameters
+#### Overview of script parameters
 
 `--root-dir` - Define the root directory where test cases will be saved. A log file will be created in this directory to track processing details. *DEFAULTS to current working directory if no value is passed in.*
 
@@ -198,7 +198,7 @@ A collection of scripts that created to help automate the onboarding process.  T
        --output-path="$output_cars_dir"
 ```
 
-##### Optional argument flags
+#### Optional argument flags
 
 Passing in these optional arguments will trigger the following actions:
 
@@ -217,7 +217,7 @@ Passing in these optional arguments will trigger the following actions:
   > it was set in previous runs as that is the suffix to the store and prep profile names.  Additionally, ensure that the `--root-dir` is correctly referenced as the default
   > sqlite3 DB is stored there and that `--sample-data-path` is the same as the original source path.
 
-##### Example usage
+#### Example usage
 
 Below are some examples of running the `prepare_data` function with different parameters and arguments:
 
