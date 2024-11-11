@@ -177,12 +177,19 @@ A collection of scripts that created to help automate the onboarding process.  T
 ##### Overview of script parameters
 
 `--root-dir` - Define the root directory where test cases will be saved. A log file will be created in this directory to track processing details. *DEFAULTS to current working directory if no value is passed in.*
+
 `--sample-data-path` - Path to where the sample data is. NOTE: Ensure is a valid S3 bucket URL if passing in the param `--use-aws`. *DEFAULTS to a folder named “sample_data” based on the value passed to `root-dir`.*
+
 `--case-name` - Title of the test case.  Useful when you need to run multiple test cases in a row and understand how different settings impact overall performance time. *DEFAULTS to “dataset” if no value is passed in.*
+
 `--concurrency-process` - Set the max number of CPU cores for all Singularity commands that utilize concurrent processing. *DEFAULTS to 1 if no value is passed in.*
+
 `--db-connection-string` - Override the default DB connection by pointing to a specific instance. *DEFAULTS to sqlite3 DB that’s created in a folder named “db” found in `root-dir`.*
+
 `--storage-name` - Name of the storage profile. *DEFAULTS to `<case-name>-source` if no value is passed in.*
+
 `--prep-name` - Name of the preparation profile. *DEFAULTS to <case-name>-prep` if no value is passed in.*
+
 `--output-path` - An optional argument to override the default output path for the generated output CAR files. By default, the cars files are saved to the directory specified for the argument, `--root-dir`. Pass in a directory path for the agrument `--output-path` If you want to save the cars files to a different location.
 
 ``` bash
