@@ -4,17 +4,15 @@ Singularity offers a modular end-to-end solution designed to simplify the proces
 
 :gear: [GitHub Repo](https://github.com/data-preservation-programs/singularity)
 :green_book: [Documentation](https://data-programs.gitbook.io/singularity/overview/readme)
-----
 
-
-
-----
+-----
 
 ## Resources
 
 Details [here](https://data-programs.gitbook.io/singularity/installation/install-from-source) on installing singularity from source.
 
 Details [here](https://data-programs.gitbook.io/singularity/installation/install-from-docker) on installing via docker. Docker compose `.yml` can be found [here](https://github.com/data-preservation-programs/singularity/blob/main/docker-compose.yml) which installs a Postgres database image.
+
 - [Singularity Workshop Guide](https://gist.github.com/SgtCoin/6a9513afedbf8875d01655f039ad9d2e) - A guide going through all the steps to prepare data with Singularity.
     1. Prepare an open dataset from S3
     2. Send deal to a local emulated storage provider `f02815405`
@@ -36,11 +34,11 @@ Singularity was designed with a modular approach to simplify the data onboarding
 
 After the running all the preparation tasks, you can run the command `singularity prep list-pieces <preparation id|name>` to view all the [pieces](https://spec.filecoin.io/systems/filecoin_files/piece/) generated.
 
-## Additional Details
+### How Singularity chunks content
 
 Singularity chunks content into a [fixed 1048576 byte sized blocks](https://github.com/data-preservation-programs/singularity/blame/0bcd9730627f30ed110c4a8cd3e09226e258fbde/pack/packutil/util.go#L25) (1MiB) instead of varied sizes e.g. [rabin chunking](https://docs.ipfs.tech/concepts/file-systems/#chunking).  The reasoning behind this is to estimate the CAR file size deterministically, so that the chunking strategy is determined by only looking at the size of the file.  While a larger block size would incur less overhead for data preparation e.g. less indexing and fewer rows to store block CIDs, the team behind Singularity selected a fixed max size of 1Mib as that is what has been historically used to work with the [bitswap protocol](https://specs.ipfs.tech/bitswap-protocol/#block-sizes).
 
----
+### How Singularity packages content
 
 Running the command `singularity prep list-pieces` prints details about the Merkle DAG generated when the storage source was scanned and ran through the `dag-gen` process. Below is an example of the `Pieces` section.
 
@@ -48,7 +46,8 @@ Running the command `singularity prep list-pieces` prints details about the Merk
 Pieces
 PieceCID                                                          PieceSize    RootCID                                                      FileSize     StoragePath
 baga6ea4seaqjc7tu6jzjk25pig66yjgt5mwvmh6femnh4tqu2bwsmcjrdhjc4jy  34359738368  bafkreihv6xzt6ilyxqjxv2wmixee57akes3teq326hby4rl65wc5jviqra  33288823369
-baga6ea4seaqbfnvhtltzxkzcwtqggfczhaz47vnptjtuiet5im4u4sblcqw7yha  34359738368  bafkreihyc6emv45dbr2udpn5ygcji3ldgujyd4hyub3me445nqgqchvvd4  20434687249
+baga6ea4seaqbfnvhtltzxkzcwtqggfczhaz47vnptjtuiet5im4u4sblcqw7yha  34359738368
+bafkreihyc6emv45dbr2udpn5ygcji3ldgujyd4hyub3me445nqgqchvvd4  20434687249
 baga6ea4seaqao7bk7tok526vmdk65ehjo7zemaca7tbddnn6whac5k34gcjnady  34359738368  bafybeidwz36ir3cfwdgerldhl4qkeiccdjans4h5d4hbq6lbvr7p4x622q  2334629
 ```
 
@@ -57,7 +56,6 @@ baga6ea4seaqao7bk7tok526vmdk65ehjo7zemaca7tbddnn6whac5k34gcjnady  34359738368  b
 `PieceSize` also known as [sector size](https://spec.filecoin.io/#section-glossary.sector), represents target piece size of the CAR files used for piece commitment calculation.
 
 ⚠️ The default max size of a piece is 31.5GiB. More details on sector sizes can be found [here](https://spec.filecoin.io/#section-systems.filecoin_mining.sector).
-
 
 `RootCID` commonly called **Payload CID**, that represents the content identifier (CID) associated with any of the blocks in the DAG.  **This CID is common between the CAR’ed and un-CAR’ed constructions and is important when data is transferred between the storage client and the storage provider. The retrieval deal is negotiated on the basis of the ***Payload CID***. When the retrieval deal is agreed, the retrieval miner starts sending the unsealed and “un-CAR’ed” file to the client. The transfer starts from the root node of the IPLD Merkle Tree and in this way the client can validate the ***Payload CID*** from the beginning of the transfer and verify that the file they are receiving is the file they negotiated in the deal and not random bits.
 
@@ -68,22 +66,22 @@ baga6ea4seaqao7bk7tok526vmdk65ehjo7zemaca7tbddnn6whac5k34gcjnady  34359738368  b
 > The **CAR Manifest** is a snapshot of the source storage's unixfs directory > structure. It only contains the CIDs of unixfs-like objects, i.e., files and folders, that map to the raw blocks >found in the CAR Data Payload. Tools like go-car CLI commands can quickly print out the CIDss for all the unixfs objects.
 >
 
+## Additional Notes
 
----
-
-#### **How to setup in-line prep**
-
-Data onboarding requires double the hard drive capacity since the source data is duplicated into a collection of CAR files. Inline preparation can help save space by mapping the blocks of CAR files back to the original data source so that there is no need to store the exported CAR files. More info on this can be found [here](https://data-programs.gitbook.io/singularity/topics/inline-preparation).
-
-
-  > ✅ Do not pass in the `--output` option in the `prep create` command to enable inline preparation.
-  >
-  > When an output source is designated, CAR files are exported to that location. CAR retrieval requests prioritize these directories. If the CAR files are removed by the user, the system reverts to fetching from the original data source.
-
-#### Notes & Tips
+Below are notes I've captured while working with Singularity.  These notes are meant to provide additional context and tips to help you navigate the tool.
 
 <details>
-  <summary><b>Resetting Database</b> - When testing, it’s useful to start with a fresh database by clearing out any content created from a previous run. </summary>
+  <summary><b>How to setup in-line prep</b></summary>:
+
+  Data onboarding requires double the hard drive capacity since the source data is duplicated into a collection of CAR files. Inline preparation can help save space by mapping the blocks of CAR files back to the original data source so that there is no need to store the exported CAR files. More info on this can be found [here](https://data-programs.gitbook.io/singularity/topics/inline-preparation).
+
+  > ✅ Do not pass in the `--output` option in the `prep create` command to enable inline preparation.
+
+  When an output source is designated, CAR files are exported to that location. CAR retrieval requests prioritize these directories. If the CAR files are removed by the user, the system reverts to fetching from the original data source.
+</details>
+
+<details>
+  <summary><b>Resetting Database</b>: When testing, it’s useful to start with a fresh database by clearing out any content created from a previous run. </summary>
 
   ```bash
   NAME:
@@ -123,7 +121,7 @@ Data onboarding requires double the hard drive capacity since the source data is
 </details>
 
 <details>
-  <summary><b>Changing the go-log options</b> - You can control options such as log level and log format with environment variables. More details can be found at https://github.com/ipfs/go-log</summary>
+  <summary><b>Changing the go-log options</b>: You can control options such as log level and log format with environment variables. More details can be found at https://github.com/ipfs/go-log</summary>
 
   ```bash
   * GOLOG_LOG_LEVEL  - example values: debug, info, warn, error, dpanic, panic, fatal
