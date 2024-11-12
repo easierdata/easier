@@ -46,7 +46,7 @@ Singularity was designed with a modular approach to simplify the data onboarding
 2. Connect to storage system by creating a ***storage profile***
 3. Build a preparation by creating a ***preparation profile***
 4. Run the preparation by initializing a ***task*** and starting the ***task runner***.
-    - Two ***tasks*** must be ran to fully prepare a dataset. `start-scan` to scan the entire storage profile and `start-daggen` to build DAGs and generate CIDs.
+    - Two ***tasks*** must be ran to fully prepare a dataset. `start-scan` to scan the entire storage profile and `start-pack` to build DAGs and generate CIDs.
 
 After the running all the preparation tasks, you can run the command `singularity prep list-pieces <preparation id|name>` to view all the [pieces](https://spec.filecoin.io/systems/filecoin_files/piece/) generated.
 
@@ -87,7 +87,7 @@ baga6ea4seaqao7bk7tok526vmdk65ehjo7zemaca7tbddnn6whac5k34gcjnady  34359738368  b
 Below are notes I've captured while working with Singularity.  These notes are meant to provide additional context and tips to help you navigate the tool.
 
 <details>
-  <summary><b>How to setup in-line prep</b></summary>:
+  <summary><b>How to setup in-line prep</b></summary>
 
   Data onboarding requires double the hard drive capacity since the source data is duplicated into a collection of CAR files. Inline preparation can help save space by mapping the blocks of CAR files back to the original data source so that there is no need to store the exported CAR files. More info on this can be found [here](https://data-programs.gitbook.io/singularity/topics/inline-preparation).
 
