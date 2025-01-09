@@ -30,17 +30,5 @@ VALUES_YAML_CONTENT="global:
 echo "$VALUES_YAML_CONTENT" > values.yaml
 echo "values.yaml file created successfully."
 
-# Write default admin password
-SECRET_YAML_CONTENT="apiVersion: v1
-  kind: Secret
-  metadata:
-    name: airbyte-auth-secrets
-  type: Opaque
-  stringData:
-    instance-admin-password: easier"
-
-echo "$VALUES_YAML_CONTENT" > secret.yaml
-echo "secret.yaml file created successfully."
-
 # Install airbyte with abctl
-abctl local install --values ./values.yaml --secret ./secret.yaml
+abctl local install --values ./values.yaml
